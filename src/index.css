@@ -278,6 +278,14 @@ a {
   object-fit: contain;
 }
 
+.qf-splash-logo--small {
+  margin-bottom: 24px;
+}
+
+.qf-splash-logo--small img {
+  height: clamp(56px, 8vw, 80px);
+}
+
 /* Light theme keeps the logo as-is; dark theme inverts/brightens it
    so the dark text reads against the dark background */
 :root[data-theme="dark"] .qf-splash-logo img {
