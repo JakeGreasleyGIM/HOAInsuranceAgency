@@ -1080,17 +1080,8 @@ function QuoteFlow({ isDay, onToggleTheme }: { isDay: boolean; onToggleTheme: ()
           {/* SPLASH */}
           {step?.type === "splash" && (
             <div className="qf-center">
-              <div className="qf-splash-icon">
-                <svg width="64" height="64" viewBox="0 0 64 64" fill="none">
-                  <rect width="64" height="64" rx="16" fill={c.accentDim} />
-                  <path
-                    d="M20 32l8 8 16-18"
-                    stroke={c.accent}
-                    strokeWidth="4"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
+              <div className="qf-splash-logo">
+                <img src="/logo.png" alt="HOA Insurance Agency" draggable={false} />
               </div>
               <h1 className="qf-headline">{step.headline}</h1>
               <p className="qf-sub">{step.sub}</p>
