@@ -500,33 +500,127 @@ function getFlow(role: string | null, data: FormData): string[] {
 }
 
 /* ──────────────────────────────────────────────────────────
-   EMAIL BODY (used in real backend wiring later)
+   EMAIL SUBMISSION
+   Uses FormSubmit (formsubmit.co) — no API key required.
+   First send to a new address triggers a confirmation email.
    ────────────────────────────────────────────────────────── */
-function buildEmailBody(data: FormData): string {
-  const roleLabel: Record<string, string> = {
-    board: "Board Member / Trustee",
-    manager: "Property Manager",
-    owner: "Unit Owner (HO-6)",
+const SUBMIT_TO = "jake@getgim.com";
+const SUBMIT_URL = `https://formsubmit.co/ajax/${SUBMIT_TO}`;
+
+const ROLE_LABELS: Record<string, string> = {
+  board: "Board Member / Trustee",
+  manager: "Property Manager",
+  owner: "Unit Owner (HO-6)",
+};
+const COVERAGE_LABELS: Record<string, string> = {
+  master_property: "Master Property",
+  general_liability: "General Liability",
+  dno: "Directors & Officers (D&O)",
+  umbrella: "Umbrella / Excess",
+  crime: "Crime / Fidelity",
+  ordinance: "Ordinance or Law",
+  not_sure: "Not sure — review everything",
+};
+const PROPERTY_LABELS: Record<string, string> = {
+  condo: "Condominium",
+  townhouse: "Townhouse",
+  mixed: "Mixed use",
+  other: "Other",
+};
+const HO6_LABELS: Record<string, string> = {
+  new: "New HO-6 policy",
+  review: "Review existing policy",
+  loss_assessment: "Loss assessment coverage",
+  not_sure: "Not sure — needs guidance",
+};
+const DEDUCTIBLE_LABELS: Record<string, string> = {
+  yes_know: "Yes, knows the amount",
+  no: "No",
+  not_sure: "Not sure",
+};
+
+/** Build a flat, label-friendly payload for FormSubmit. */
+function buildSubmission(data: FormData, agentName: string) {
+  const get = (k: string) => (typeof data[k] === "string" ? (data[k] as string) : "");
+  const role = get("role");
+  const name = get("contactName") || "Unknown";
+  const association = get("associationName") || "—";
+
+  const payload: Record<string, string> = {
+    /* ── FormSubmit control fields ── */
+    _subject: `🏢 New HOA Insurance Quote — ${name}${association !== "—" ? " · " + association : ""}`,
+    _template: "table",
+    _captcha: "false",
+    _replyto: get("contactEmail") || "",
+
+    /* ── Lead summary ── */
+    "Submitted": new Date().toLocaleString("en-US", {
+      dateStyle: "full",
+      timeStyle: "short",
+    }),
+    "Assigned Agent": agentName,
+    "Role": ROLE_LABELS[role] || role || "—",
+
+    /* ── Contact ── */
+    "Full Name": name,
+    "Email": get("contactEmail") || "—",
+    "Phone": get("contactPhone") || "—",
+
+    /* ── Association ── */
+    "Association": association,
+    "City": get("city") || "—",
+    "State": get("state") || "—",
   };
-  const lines = [
-    `New quote request from ${data.contactName || "Unknown"}`,
-    "",
-    `Role: ${roleLabel[data.role as string] || data.role || "—"}`,
-    `Association: ${data.associationName || "—"}`,
-    `Location: ${data.city || "—"}, ${data.state || "—"}`,
-  ];
-  if (data.unitCount) lines.push(`Units: ${data.unitCount}`);
-  if (data.propertyType) lines.push(`Property Type: ${data.propertyType}`);
-  if (data.yearBuilt) lines.push(`Year Built: ${data.yearBuilt}`);
-  if (Array.isArray(data.coverageNeeds) && data.coverageNeeds.length)
-    lines.push(`Coverage Needs: ${data.coverageNeeds.join(", ")}`);
-  if (data.currentCarrier) lines.push(`Current Carrier: ${data.currentCarrier}`);
-  if (data.renewalDate) lines.push(`Renewal Date: ${data.renewalDate}`);
-  if (data.masterDeductible) lines.push(`Knows Master Deductible: ${data.masterDeductible}`);
-  if (data.deductibleAmount) lines.push(`Deductible Amount: ${data.deductibleAmount}`);
-  if (data.ho6Need) lines.push(`HO-6 Need: ${data.ho6Need}`);
-  lines.push("", "Contact:", `Name: ${data.contactName || "—"}`, `Email: ${data.contactEmail || "—"}`, `Phone: ${data.contactPhone || "—"}`);
-  return lines.join("\n");
+
+  if (role === "board" || role === "manager") {
+    payload["Unit Count"] = get("unitCount") || "—";
+    payload["Property Type"] = PROPERTY_LABELS[get("propertyType")] || get("propertyType") || "—";
+    payload["Year Built"] = get("yearBuilt") || "—";
+
+    const coverage = data.coverageNeeds;
+    if (Array.isArray(coverage) && coverage.length) {
+      payload["Coverage Needs"] = coverage
+        .map((v) => COVERAGE_LABELS[v] || v)
+        .join(", ");
+    } else {
+      payload["Coverage Needs"] = "—";
+    }
+
+    payload["Current Carrier"] = get("currentCarrier") || "—";
+    payload["Renewal Date"] = get("renewalDate") || "—";
+  }
+
+  if (role === "owner") {
+    payload["Knows Master Deductible"] =
+      DEDUCTIBLE_LABELS[get("masterDeductible")] || get("masterDeductible") || "—";
+    if (get("deductibleAmount")) {
+      payload["Deductible Amount"] = get("deductibleAmount");
+    }
+    payload["What They Need"] = HO6_LABELS[get("ho6Need")] || get("ho6Need") || "—";
+  }
+
+  return payload;
+}
+
+async function sendQuoteEmail(data: FormData, agentName: string): Promise<void> {
+  const payload = buildSubmission(data, agentName);
+  const res = await fetch(SUBMIT_URL, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Accept: "application/json",
+    },
+    body: JSON.stringify(payload),
+  });
+  if (!res.ok) {
+    throw new Error(`Mail relay returned ${res.status}`);
+  }
+  const json = (await res.json()) as { success?: string | boolean; message?: string };
+  // FormSubmit returns success: "true" as a string in their JSON response
+  const ok = json.success === true || json.success === "true";
+  if (!ok) {
+    throw new Error(json.message || "Mail relay rejected the submission");
+  }
 }
 
 /* ──────────────────────────────────────────────────────────
@@ -1024,19 +1118,21 @@ function QuoteFlow({ isDay, onToggleTheme }: { isDay: boolean; onToggleTheme: ()
 
   async function submitForm(finalData: FormData) {
     setSubmitting(true);
+    setError("");
     try {
-      // TODO: replace with API call (SES Lambda / SendGrid)
-      // eslint-disable-next-line no-console
-      console.log("QUOTE SUBMISSION:", finalData);
-      // eslint-disable-next-line no-console
-      console.log("Email body preview:\n" + buildEmailBody(finalData));
-      // expose for debugging
-      (window as unknown as { __quoteData?: FormData }).__quoteData = finalData;
+      await sendQuoteEmail(finalData, agent.name);
       setDirection(1);
       setStepIndex(flow.length - 1);
       resetInput();
-    } catch {
-      setError("Something went wrong. Please try again.");
+      // Submission succeeded — clear persisted draft so a refresh
+      // doesn't put them back into the questionnaire
+      clearState();
+    } catch (err) {
+      // eslint-disable-next-line no-console
+      console.error("Quote submission failed:", err);
+      setError(
+        "We couldn't send your request. Please try again, or call us at (508) 233-2261."
+      );
     } finally {
       setSubmitting(false);
     }
@@ -1168,6 +1264,9 @@ function QuoteFlow({ isDay, onToggleTheme }: { isDay: boolean; onToggleTheme: ()
           {/* SUBMITTED */}
           {step?.type === "submitted" && (
             <div className="qf-center">
+              <div className="qf-splash-logo qf-splash-logo--small">
+                <img src="/logo.png" alt="HOA Insurance Agency" draggable={false} />
+              </div>
               <div className="qf-success-icon">
                 <svg width="80" height="80" viewBox="0 0 80 80" fill="none">
                   <circle cx="40" cy="40" r="40" fill={c.accentDim} />
