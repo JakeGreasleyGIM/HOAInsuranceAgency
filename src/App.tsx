@@ -75,6 +75,26 @@ const ThemeContext = createContext<Palette>(DARK);
 const useTheme = () => useContext(ThemeContext);
 
 /* ──────────────────────────────────────────────────────────
+   AGENT ROSTER — rotates per session
+   ────────────────────────────────────────────────────────── */
+type Agent = { name: string; photo: string };
+
+const AGENTS: Agent[] = [
+  { name: "Maya Chen",        photo: "/agents/1.jpg" },
+  { name: "David Reyes",      photo: "/agents/2.jpg" },
+  { name: "Sarah Kim",        photo: "/agents/3.jpg" },
+  { name: "Michael O'Brien",  photo: "/agents/4.jpg" },
+  { name: "Priya Patel",      photo: "/agents/5.jpg" },
+  { name: "Marcus Johnson",   photo: "/agents/6.jpg" },
+  { name: "Emma Hartley",     photo: "/agents/7.jpg" },
+  { name: "James Walker",     photo: "/agents/8.jpg" },
+];
+
+function pickAgent(): Agent {
+  return AGENTS[Math.floor(Math.random() * AGENTS.length)];
+}
+
+/* ──────────────────────────────────────────────────────────
    ICONS — inline SVGs (no deps)
    ────────────────────────────────────────────────────────── */
 type IconProps = { size?: number; color?: string };
@@ -715,9 +735,11 @@ function RestartButton({ onClick }: { onClick: () => void }) {
 }
 
 /* ── Friendly headshot header (Lemonade-style) ── */
-function AgentHeader({ greeting }: { greeting?: string }) {
+function AgentHeader({ agent, greeting }: { agent: Agent; greeting?: string }) {
   const c = useTheme();
   const [imgFailed, setImgFailed] = useState(false);
+  // reset error state if agent changes (e.g., after restart)
+  useEffect(() => setImgFailed(false), [agent.photo]);
   return (
     <div className="qf-agent-header">
       <div
@@ -729,8 +751,8 @@ function AgentHeader({ greeting }: { greeting?: string }) {
       >
         {!imgFailed ? (
           <img
-            src="/agent.jpg"
-            alt="Your insurance agent"
+            src={agent.photo}
+            alt={agent.name}
             onError={() => setImgFailed(true)}
             draggable={false}
           />
@@ -823,6 +845,7 @@ function QuoteFlow({ isDay, onToggleTheme }: { isDay: boolean; onToggleTheme: ()
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
   const [direction, setDirection] = useState<1 | -1>(1);
+  const [agent, setAgent] = useState<Agent>(() => pickAgent());
 
   function handleRestart() {
     if (stepIndex === 0) return;
@@ -836,6 +859,14 @@ function QuoteFlow({ isDay, onToggleTheme }: { isDay: boolean; onToggleTheme: ()
     setMultiVal([]);
     setError("");
     setSubmitting(false);
+    // Roll a new agent so the experience feels fresh
+    let next = pickAgent();
+    let tries = 0;
+    while (next.name === agent.name && tries < 5) {
+      next = pickAgent();
+      tries++;
+    }
+    setAgent(next);
   }
 
   const flow = useMemo(() => getFlow(role, data), [role, data]);
@@ -943,14 +974,15 @@ function QuoteFlow({ isDay, onToggleTheme }: { isDay: boolean; onToggleTheme: ()
 
   const showAgentHeader = step?.type !== "splash" && step?.type !== "submitted";
   const firstName = (data.contactName as string | undefined)?.split(" ")[0];
+  const agentFirst = agent.name.split(" ")[0];
   const greeting = useMemo(() => {
-    if (stepKey === "role") return "Hi, I'm Maya — I'll get you a quote.";
+    if (stepKey === "role") return `Hi, I'm ${agentFirst} — I'll get you a quote.`;
     if (stepKey === "assocName") return "Tell me about your association.";
     if (stepKey === "contactName") return "Just a few more questions.";
     if (firstName && stepKey === "contactEmail") return `Thanks, ${firstName}!`;
     if (firstName && stepKey === "contactPhone") return `Almost done, ${firstName}.`;
     return undefined;
-  }, [stepKey, firstName]);
+  }, [stepKey, firstName, agentFirst]);
 
   return (
     <div className="qf-root">
@@ -962,7 +994,7 @@ function QuoteFlow({ isDay, onToggleTheme }: { isDay: boolean; onToggleTheme: ()
       </div>
 
       <div className="qf-stage">
-        {showAgentHeader && <AgentHeader greeting={greeting} />}
+        {showAgentHeader && <AgentHeader agent={agent} greeting={greeting} />}
         <SlideIn keyVal={stepKey} direction={direction}>
           {/* SPLASH */}
           {step?.type === "splash" && (
