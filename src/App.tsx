@@ -531,7 +531,7 @@ function getFlow(role: string | null, data: FormData): string[] {
    Uses FormSubmit (formsubmit.co) — no API key required.
    First send to a new address triggers a confirmation email.
    ────────────────────────────────────────────────────────── */
-const SUBMIT_TO = "jake@getgim.com";
+const SUBMIT_TO = "insurance@protectmyhoa.com";
 const SUBMIT_URL = `https://formsubmit.co/ajax/${SUBMIT_TO}`;
 
 const ROLE_LABELS: Record<string, string> = {
