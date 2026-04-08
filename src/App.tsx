@@ -95,6 +95,62 @@ function pickAgent(): Agent {
 }
 
 /* ──────────────────────────────────────────────────────────
+   PERSISTENCE — survive refresh
+   ────────────────────────────────────────────────────────── */
+const STORAGE_KEY = "qf:state:v1";
+const THEME_KEY = "qf:theme:v1";
+
+type PersistedState = {
+  stepIndex: number;
+  data: FormData;
+  role: string | null;
+  agent: Agent;
+  inputVal: string;
+  multiVal: string[];
+};
+
+function loadState(): PersistedState | null {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw) as Partial<PersistedState>;
+    if (
+      typeof parsed.stepIndex !== "number" ||
+      !parsed.data ||
+      !parsed.agent
+    ) {
+      return null;
+    }
+    return {
+      stepIndex: parsed.stepIndex,
+      data: parsed.data as FormData,
+      role: parsed.role ?? null,
+      agent: parsed.agent as Agent,
+      inputVal: typeof parsed.inputVal === "string" ? parsed.inputVal : "",
+      multiVal: Array.isArray(parsed.multiVal) ? parsed.multiVal : [],
+    };
+  } catch {
+    return null;
+  }
+}
+
+function saveState(s: PersistedState) {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(s));
+  } catch {
+    /* quota exceeded or private mode — silently ignore */
+  }
+}
+
+function clearState() {
+  try {
+    localStorage.removeItem(STORAGE_KEY);
+  } catch {
+    /* ignore */
+  }
+}
+
+/* ──────────────────────────────────────────────────────────
    ICONS — inline SVGs (no deps)
    ────────────────────────────────────────────────────────── */
 type IconProps = { size?: number; color?: string };
@@ -797,8 +853,25 @@ function FallbackAvatar({ accent }: { accent: string }) {
 type ThemeMode = "auto" | "light" | "dark";
 
 export default function App() {
-  const [mode, setMode] = useState<ThemeMode>("auto");
+  const [mode, setMode] = useState<ThemeMode>(() => {
+    try {
+      const v = localStorage.getItem(THEME_KEY);
+      if (v === "light" || v === "dark" || v === "auto") return v;
+    } catch {
+      /* ignore */
+    }
+    return "auto";
+  });
   const [autoIsDay, setAutoIsDay] = useState<boolean>(() => isDaytime());
+
+  // Persist theme mode
+  useEffect(() => {
+    try {
+      localStorage.setItem(THEME_KEY, mode);
+    } catch {
+      /* ignore */
+    }
+  }, [mode]);
 
   // Re-evaluate every minute so theme flips at the boundary even on a long session
   useEffect(() => {
@@ -837,15 +910,22 @@ export default function App() {
 
 function QuoteFlow({ isDay, onToggleTheme }: { isDay: boolean; onToggleTheme: () => void }) {
   const c = useTheme();
-  const [stepIndex, setStepIndex] = useState(0);
-  const [data, setData] = useState<FormData>({});
-  const [role, setRole] = useState<string | null>(null);
-  const [inputVal, setInputVal] = useState("");
-  const [multiVal, setMultiVal] = useState<string[]>([]);
+  // Hydrate from localStorage on first render
+  const persisted = useMemo(() => loadState(), []);
+  const [stepIndex, setStepIndex] = useState<number>(persisted?.stepIndex ?? 0);
+  const [data, setData] = useState<FormData>(persisted?.data ?? {});
+  const [role, setRole] = useState<string | null>(persisted?.role ?? null);
+  const [inputVal, setInputVal] = useState<string>(persisted?.inputVal ?? "");
+  const [multiVal, setMultiVal] = useState<string[]>(persisted?.multiVal ?? []);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
   const [direction, setDirection] = useState<1 | -1>(1);
-  const [agent, setAgent] = useState<Agent>(() => pickAgent());
+  const [agent, setAgent] = useState<Agent>(() => persisted?.agent ?? pickAgent());
+
+  // Persist on every meaningful change
+  useEffect(() => {
+    saveState({ stepIndex, data, role, agent, inputVal, multiVal });
+  }, [stepIndex, data, role, agent, inputVal, multiVal]);
 
   function handleRestart() {
     if (stepIndex === 0) return;
@@ -867,6 +947,7 @@ function QuoteFlow({ isDay, onToggleTheme }: { isDay: boolean; onToggleTheme: ()
       tries++;
     }
     setAgent(next);
+    clearState();
   }
 
   const flow = useMemo(() => getFlow(role, data), [role, data]);
