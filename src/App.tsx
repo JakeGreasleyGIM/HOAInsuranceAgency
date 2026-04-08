@@ -1016,11 +1016,6 @@ function QuoteFlow({ isDay, onToggleTheme }: { isDay: boolean; onToggleTheme: ()
   const [direction, setDirection] = useState<1 | -1>(1);
   const [agent, setAgent] = useState<Agent>(() => persisted?.agent ?? pickAgent());
 
-  // Persist on every meaningful change
-  useEffect(() => {
-    saveState({ stepIndex, data, role, agent, inputVal, multiVal });
-  }, [stepIndex, data, role, agent, inputVal, multiVal]);
-
   function handleRestart() {
     if (stepIndex === 0) return;
     const ok = window.confirm("Start over? Your answers will be cleared.");
@@ -1048,6 +1043,16 @@ function QuoteFlow({ isDay, onToggleTheme }: { isDay: boolean; onToggleTheme: ()
   const stepKey = flow[stepIndex];
   const step = STEPS[stepKey];
   const totalSteps = flow.length - 1;
+
+  // Persist on every meaningful change. Skip (and clear) once the user
+  // reaches the submitted screen so a refresh sends them to the start.
+  useEffect(() => {
+    if (stepKey === "submitted") {
+      clearState();
+      return;
+    }
+    saveState({ stepIndex, data, role, agent, inputVal, multiVal });
+  }, [stepKey, stepIndex, data, role, agent, inputVal, multiVal]);
 
   const resetInput = useCallback(() => {
     setInputVal("");
@@ -1124,8 +1129,8 @@ function QuoteFlow({ isDay, onToggleTheme }: { isDay: boolean; onToggleTheme: ()
       setDirection(1);
       setStepIndex(flow.length - 1);
       resetInput();
-      // Submission succeeded — clear persisted draft so a refresh
-      // doesn't put them back into the questionnaire
+      // Persistence effect also clears storage when stepKey becomes "submitted",
+      // but we clear here too so it's gone before any subsequent renders.
       clearState();
     } catch (err) {
       // eslint-disable-next-line no-console
