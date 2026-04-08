@@ -4,17 +4,35 @@ import {
   useRef,
   useCallback,
   useMemo,
+  useContext,
+  createContext,
   type ReactNode,
   type CSSProperties,
 } from "react";
 
 /* ──────────────────────────────────────────────────────────
-   PALETTE — derived from protectmyhoa.com (deep navy + sky)
+   PALETTES — dark (night) + light (day)
+   Auto-switched based on local time of day.
    ────────────────────────────────────────────────────────── */
-const C = {
+type Palette = {
+  bg: string;
+  card: string;
+  cardHover: string;
+  border: string;
+  borderActive: string;
+  accent: string;
+  accentHover: string;
+  accentDim: string;
+  accentGlow: string;
+  text: string;
+  textMuted: string;
+  white: string;
+  error: string;
+  success: string;
+};
+
+const DARK: Palette = {
   bg: "#0b1220",
-  bgGradientTop: "#0e1730",
-  bgGradientBottom: "#070b16",
   card: "#131c2e",
   cardHover: "#182339",
   border: "#1f2a40",
@@ -29,6 +47,32 @@ const C = {
   error: "#f85149",
   success: "#3fb950",
 };
+
+const LIGHT: Palette = {
+  bg: "#f6f8fc",
+  card: "#ffffff",
+  cardHover: "#f0f4fb",
+  border: "#dfe5ef",
+  borderActive: "#1f7ae0",
+  accent: "#1f7ae0",
+  accentHover: "#1668c4",
+  accentDim: "rgba(31,122,224,0.08)",
+  accentGlow: "rgba(31,122,224,0.22)",
+  text: "#0f172a",
+  textMuted: "#5b6776",
+  white: "#ffffff",
+  error: "#d92d20",
+  success: "#16a34a",
+};
+
+/* Day = 6:00 → 17:59 local time. Night otherwise. */
+function isDaytime(d = new Date()): boolean {
+  const h = d.getHours();
+  return h >= 6 && h < 18;
+}
+
+const ThemeContext = createContext<Palette>(DARK);
+const useTheme = () => useContext(ThemeContext);
 
 /* ──────────────────────────────────────────────────────────
    ICONS — inline SVGs (no deps)
@@ -416,6 +460,38 @@ function ProgressBar({ current, total }: { current: number; total: number }) {
   );
 }
 
+/* Sun / moon indicator (also acts as a manual override toggle) */
+function ThemeIndicator({ isDay, onToggle }: { isDay: boolean; onToggle: () => void }) {
+  const c = useTheme();
+  const [hov, setHov] = useState(false);
+  return (
+    <button
+      type="button"
+      onClick={onToggle}
+      onMouseEnter={() => setHov(true)}
+      onMouseLeave={() => setHov(false)}
+      aria-label={isDay ? "Switch to night theme" : "Switch to day theme"}
+      title={isDay ? "Day theme — click for night" : "Night theme — click for day"}
+      className="qf-theme-toggle"
+      style={{
+        color: hov ? c.text : c.textMuted,
+        background: hov ? (isDay ? "rgba(0,0,0,0.04)" : "rgba(255,255,255,0.06)") : "transparent",
+      }}
+    >
+      {isDay ? (
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <circle cx="12" cy="12" r="4" />
+          <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41" />
+        </svg>
+      ) : (
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z" />
+        </svg>
+      )}
+    </button>
+  );
+}
+
 function SlideIn({ children, keyVal, direction }: { children: ReactNode; keyVal: string; direction: 1 | -1 }) {
   const [vis, setVis] = useState(false);
   useEffect(() => {
@@ -453,9 +529,15 @@ function CardOption({
   onClick: () => void;
   showCheck?: boolean;
 }) {
+  const c = useTheme();
   const [hov, setHov] = useState(false);
   const IconCmp = iconKey ? Icon[iconKey] : null;
   const active = selected;
+  const isLight = c.bg === LIGHT.bg;
+  const shadowBase = isLight ? "rgba(15,23,42,0.06)" : "rgba(0,0,0,0.25)";
+  const shadowHover = isLight ? "rgba(15,23,42,0.12)" : "rgba(0,0,0,0.35)";
+  const shadowActive = isLight ? "rgba(15,23,42,0.14)" : "rgba(0,0,0,0.4)";
+  const borderHover = isLight ? "#c8d2e1" : "#2c3a55";
   return (
     <button
       type="button"
@@ -464,18 +546,23 @@ function CardOption({
       onMouseLeave={() => setHov(false)}
       className="qf-card-option"
       style={{
-        background: active ? C.accentDim : hov ? C.cardHover : C.card,
-        border: `1.5px solid ${active ? C.borderActive : hov ? "#2c3a55" : C.border}`,
-        boxShadow: active ? `0 0 0 4px ${C.accentGlow}, 0 8px 24px rgba(0,0,0,0.4)` : hov ? "0 6px 20px rgba(0,0,0,0.35)" : "0 2px 8px rgba(0,0,0,0.25)",
+        background: active ? c.accentDim : hov ? c.cardHover : c.card,
+        border: `1.5px solid ${active ? c.borderActive : hov ? borderHover : c.border}`,
+        boxShadow: active
+          ? `0 0 0 4px ${c.accentGlow}, 0 8px 24px ${shadowActive}`
+          : hov
+            ? `0 6px 20px ${shadowHover}`
+            : `0 2px 8px ${shadowBase}`,
         transform: hov && !active ? "translateY(-2px)" : "translateY(0)",
+        color: c.text,
       }}
     >
       {IconCmp && (
         <span
           className="qf-card-icon"
           style={{
-            background: active ? C.accent : C.accentDim,
-            color: active ? C.bg : C.accent,
+            background: active ? c.accent : c.accentDim,
+            color: active ? c.white : c.accent,
             transition: "all 0.25s ease",
           }}
         >
@@ -484,15 +571,15 @@ function CardOption({
       )}
       <span className="qf-card-text">
         <span className="qf-card-label">{label}</span>
-        {sub && <span className="qf-card-sub">{sub}</span>}
+        {sub && <span className="qf-card-sub" style={{ color: c.textMuted }}>{sub}</span>}
       </span>
       {showCheck && (
         <span
           className="qf-card-check"
           style={{
-            background: active ? C.accent : "transparent",
-            border: `2px solid ${active ? C.accent : C.border}`,
-            color: active ? C.bg : "transparent",
+            background: active ? c.accent : "transparent",
+            border: `2px solid ${active ? c.accent : c.border}`,
+            color: active ? c.white : "transparent",
           }}
         >
           <Icon.Check size={14} />
@@ -554,11 +641,12 @@ function PrimaryButton({
   disabled?: boolean;
   loading?: boolean;
 }) {
+  const c = useTheme();
   const [hov, setHov] = useState(false);
   const style: CSSProperties = {
-    background: disabled ? C.border : hov ? C.accentHover : C.accent,
-    color: disabled ? C.textMuted : C.bg,
-    boxShadow: disabled ? "none" : hov ? `0 14px 32px ${C.accentGlow}` : `0 8px 22px ${C.accentGlow}`,
+    background: disabled ? c.border : hov ? c.accentHover : c.accent,
+    color: disabled ? c.textMuted : c.white,
+    boxShadow: disabled ? "none" : hov ? `0 14px 32px ${c.accentGlow}` : `0 8px 22px ${c.accentGlow}`,
     transform: hov && !disabled ? "translateY(-1px)" : "translateY(0)",
     cursor: disabled ? "default" : "pointer",
     opacity: disabled ? 0.55 : 1,
@@ -580,6 +668,7 @@ function PrimaryButton({
 }
 
 function BackButton({ onClick }: { onClick: () => void }) {
+  const c = useTheme();
   const [hov, setHov] = useState(false);
   return (
     <button
@@ -588,7 +677,7 @@ function BackButton({ onClick }: { onClick: () => void }) {
       onMouseEnter={() => setHov(true)}
       onMouseLeave={() => setHov(false)}
       className="qf-back-btn"
-      style={{ color: hov ? C.text : C.textMuted }}
+      style={{ color: hov ? c.text : c.textMuted }}
     >
       <Icon.ArrowLeft size={16} />
       <span>Back</span>
@@ -599,7 +688,49 @@ function BackButton({ onClick }: { onClick: () => void }) {
 /* ──────────────────────────────────────────────────────────
    APP
    ────────────────────────────────────────────────────────── */
+type ThemeMode = "auto" | "light" | "dark";
+
 export default function App() {
+  const [mode, setMode] = useState<ThemeMode>("auto");
+  const [autoIsDay, setAutoIsDay] = useState<boolean>(() => isDaytime());
+
+  // Re-evaluate every minute so theme flips at the boundary even on a long session
+  useEffect(() => {
+    if (mode !== "auto") return;
+    const t = setInterval(() => setAutoIsDay(isDaytime()), 60_000);
+    return () => clearInterval(t);
+  }, [mode]);
+
+  const isDay = mode === "auto" ? autoIsDay : mode === "light";
+  const palette = isDay ? LIGHT : DARK;
+
+  // Reflect theme on <html> so global CSS can react
+  useEffect(() => {
+    document.documentElement.dataset.theme = isDay ? "light" : "dark";
+    const meta = document.querySelector('meta[name="theme-color"]');
+    if (meta) meta.setAttribute("content", palette.bg);
+  }, [isDay, palette.bg]);
+
+  function toggleTheme() {
+    // auto → opposite manual → flip manual → back to auto when matching auto
+    if (mode === "auto") {
+      setMode(isDay ? "dark" : "light");
+    } else if (mode === "light") {
+      setMode("dark");
+    } else {
+      setMode("light");
+    }
+  }
+
+  return (
+    <ThemeContext.Provider value={palette}>
+      <QuoteFlow isDay={isDay} onToggleTheme={toggleTheme} />
+    </ThemeContext.Provider>
+  );
+}
+
+function QuoteFlow({ isDay, onToggleTheme }: { isDay: boolean; onToggleTheme: () => void }) {
+  const c = useTheme();
   const [stepIndex, setStepIndex] = useState(0);
   const [data, setData] = useState<FormData>({});
   const [role, setRole] = useState<string | null>(null);
@@ -716,6 +847,7 @@ export default function App() {
     <div className="qf-root">
       <ProgressBar current={Math.min(stepIndex, totalSteps)} total={totalSteps} />
       {stepIndex > 0 && step?.type !== "submitted" && <BackButton onClick={goBack} />}
+      <ThemeIndicator isDay={isDay} onToggle={onToggleTheme} />
 
       <div className="qf-stage">
         <SlideIn keyVal={stepKey} direction={direction}>
@@ -724,10 +856,10 @@ export default function App() {
             <div className="qf-center">
               <div className="qf-splash-icon">
                 <svg width="64" height="64" viewBox="0 0 64 64" fill="none">
-                  <rect width="64" height="64" rx="16" fill={C.accentDim} />
+                  <rect width="64" height="64" rx="16" fill={c.accentDim} />
                   <path
                     d="M20 32l8 8 16-18"
-                    stroke={C.accent}
+                    stroke={c.accent}
                     strokeWidth="4"
                     strokeLinecap="round"
                     strokeLinejoin="round"
@@ -821,11 +953,11 @@ export default function App() {
             <div className="qf-center">
               <div className="qf-success-icon">
                 <svg width="80" height="80" viewBox="0 0 80 80" fill="none">
-                  <circle cx="40" cy="40" r="40" fill={C.accentDim} />
-                  <circle cx="40" cy="40" r="30" fill={C.accent} />
+                  <circle cx="40" cy="40" r="40" fill={c.accentDim} />
+                  <circle cx="40" cy="40" r="30" fill={c.accent} />
                   <path
                     d="M26 40l10 10 18-22"
-                    stroke={C.bg}
+                    stroke={c.white}
                     strokeWidth="5"
                     strokeLinecap="round"
                     strokeLinejoin="round"
