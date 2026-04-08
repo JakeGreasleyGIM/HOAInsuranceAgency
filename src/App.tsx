@@ -1269,9 +1269,15 @@ function QuoteFlow({ isDay, onToggleTheme }: { isDay: boolean; onToggleTheme: ()
           {/* SUBMITTED */}
           {step?.type === "submitted" && (
             <div className="qf-center">
-              <div className="qf-splash-logo qf-splash-logo--small">
+              <a
+                href="https://www.protectmyhoa.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="qf-splash-logo qf-splash-logo--small qf-splash-logo--link"
+                aria-label="Visit ProtectMyHOA.com"
+              >
                 <img src="/logo.png" alt="HOA Insurance Agency" draggable={false} />
-              </div>
+              </a>
               <div className="qf-success-icon">
                 <svg width="80" height="80" viewBox="0 0 80 80" fill="none">
                   <circle cx="40" cy="40" r="40" fill={c.accentDim} />

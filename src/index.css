@@ -286,6 +286,20 @@ a {
   height: clamp(56px, 8vw, 80px);
 }
 
+.qf-splash-logo--link {
+  cursor: pointer;
+  transition: transform 0.25s cubic-bezier(0.2, 0.7, 0.3, 1), opacity 0.25s ease;
+}
+
+.qf-splash-logo--link:hover {
+  transform: translateY(-2px) scale(1.02);
+  opacity: 0.92;
+}
+
+.qf-splash-logo--link:active {
+  transform: translateY(0) scale(0.99);
+}
+
 /* Light theme keeps the logo as-is; dark theme inverts/brightens it
    so the dark text reads against the dark background */
 :root[data-theme="dark"] .qf-splash-logo img {
