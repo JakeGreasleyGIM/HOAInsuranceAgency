@@ -1,40 +1,856 @@
-import { useEffect, useState } from "react";
-import type { Schema } from "../amplify/data/resource";
-import { generateClient } from "aws-amplify/data";
+import {
+  useState,
+  useEffect,
+  useRef,
+  useCallback,
+  useMemo,
+  type ReactNode,
+  type CSSProperties,
+} from "react";
 
-const client = generateClient<Schema>();
+/* ──────────────────────────────────────────────────────────
+   PALETTE — derived from protectmyhoa.com (deep navy + sky)
+   ────────────────────────────────────────────────────────── */
+const C = {
+  bg: "#0b1220",
+  bgGradientTop: "#0e1730",
+  bgGradientBottom: "#070b16",
+  card: "#131c2e",
+  cardHover: "#182339",
+  border: "#1f2a40",
+  borderActive: "#4da6ff",
+  accent: "#4da6ff",
+  accentHover: "#79bbff",
+  accentDim: "rgba(77,166,255,0.10)",
+  accentGlow: "rgba(77,166,255,0.35)",
+  text: "#e6edf3",
+  textMuted: "#8b95a8",
+  white: "#ffffff",
+  error: "#f85149",
+  success: "#3fb950",
+};
 
-function App() {
-  const [todos, setTodos] = useState<Array<Schema["Todo"]["type"]>>([]);
+/* ──────────────────────────────────────────────────────────
+   ICONS — inline SVGs (no deps)
+   ────────────────────────────────────────────────────────── */
+type IconProps = { size?: number; color?: string };
+const Icon = {
+  Board: ({ size = 32, color = "currentColor" }: IconProps) => (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M3 21h18" />
+      <path d="M5 21V7l7-4 7 4v14" />
+      <path d="M9 21v-6h6v6" />
+      <path d="M9 11h.01M12 11h.01M15 11h.01" />
+    </svg>
+  ),
+  Manager: ({ size = 32, color = "currentColor" }: IconProps) => (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="3" y="4" width="18" height="16" rx="2" />
+      <path d="M3 9h18" />
+      <path d="M8 14h2M14 14h2" />
+    </svg>
+  ),
+  Owner: ({ size = 32, color = "currentColor" }: IconProps) => (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M3 11l9-7 9 7" />
+      <path d="M5 10v10h14V10" />
+      <path d="M10 20v-6h4v6" />
+    </svg>
+  ),
+  Condo: ({ size = 32, color = "currentColor" }: IconProps) => (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="4" y="3" width="16" height="18" rx="1" />
+      <path d="M8 7h.01M12 7h.01M16 7h.01M8 11h.01M12 11h.01M16 11h.01M8 15h.01M12 15h.01M16 15h.01" />
+      <path d="M10 21v-3h4v3" />
+    </svg>
+  ),
+  Townhouse: ({ size = 32, color = "currentColor" }: IconProps) => (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M3 21V10l4-4 4 4v11" />
+      <path d="M11 21V10l4-4 4 4v11" />
+      <path d="M6 21v-5M14 21v-5" />
+    </svg>
+  ),
+  Mixed: ({ size = 32, color = "currentColor" }: IconProps) => (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="3" y="11" width="8" height="10" />
+      <rect x="13" y="3" width="8" height="18" />
+      <path d="M5 15h.01M5 18h.01M15 7h.01M15 11h.01M15 15h.01M19 7h.01M19 11h.01M19 15h.01" />
+    </svg>
+  ),
+  Building: ({ size = 32, color = "currentColor" }: IconProps) => (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="5" y="2" width="14" height="20" rx="1" />
+      <path d="M9 6h.01M13 6h.01M9 10h.01M13 10h.01M9 14h.01M13 14h.01" />
+      <path d="M10 22v-4h4v4" />
+    </svg>
+  ),
+  Shield: ({ size = 32, color = "currentColor" }: IconProps) => (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M12 2l8 4v6c0 5-3.5 9.5-8 10-4.5-.5-8-5-8-10V6l8-4z" />
+    </svg>
+  ),
+  Scale: ({ size = 32, color = "currentColor" }: IconProps) => (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M12 3v18" />
+      <path d="M5 7h14" />
+      <path d="M5 7l-2 6a4 4 0 008 0L9 7" />
+      <path d="M19 7l-2 6a4 4 0 008 0l-2-6" />
+    </svg>
+  ),
+  Briefcase: ({ size = 32, color = "currentColor" }: IconProps) => (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="3" y="7" width="18" height="13" rx="2" />
+      <path d="M9 7V5a2 2 0 012-2h2a2 2 0 012 2v2" />
+      <path d="M3 13h18" />
+    </svg>
+  ),
+  Umbrella: ({ size = 32, color = "currentColor" }: IconProps) => (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M12 2v2" />
+      <path d="M2 12a10 10 0 0120 0H2z" />
+      <path d="M12 12v7a3 3 0 01-6 0" />
+    </svg>
+  ),
+  Lock: ({ size = 32, color = "currentColor" }: IconProps) => (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="4" y="11" width="16" height="10" rx="2" />
+      <path d="M8 11V7a4 4 0 018 0v4" />
+    </svg>
+  ),
+  Document: ({ size = 32, color = "currentColor" }: IconProps) => (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" />
+      <path d="M14 2v6h6" />
+      <path d="M9 14h6M9 18h6" />
+    </svg>
+  ),
+  Sparkle: ({ size = 32, color = "currentColor" }: IconProps) => (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M12 3l2 5 5 2-5 2-2 5-2-5-5-2 5-2z" />
+    </svg>
+  ),
+  Check: ({ size = 18, color = "currentColor" }: IconProps) => (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M5 12l5 5 9-11" />
+    </svg>
+  ),
+  ArrowLeft: ({ size = 18, color = "currentColor" }: IconProps) => (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M19 12H5M12 5l-7 7 7 7" />
+    </svg>
+  ),
+  ArrowRight: ({ size = 18, color = "currentColor" }: IconProps) => (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M5 12h14M12 5l7 7-7 7" />
+    </svg>
+  ),
+  Yes: ({ size = 32, color = "currentColor" }: IconProps) => (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="12" cy="12" r="10" />
+      <path d="M8 12l3 3 5-6" />
+    </svg>
+  ),
+  No: ({ size = 32, color = "currentColor" }: IconProps) => (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="12" cy="12" r="10" />
+      <path d="M9 9l6 6M15 9l-6 6" />
+    </svg>
+  ),
+  Question: ({ size = 32, color = "currentColor" }: IconProps) => (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="12" cy="12" r="10" />
+      <path d="M9.5 9a2.5 2.5 0 015 0c0 1.5-2.5 2-2.5 4" />
+      <path d="M12 17h.01" />
+    </svg>
+  ),
+  Phone: ({ size = 18, color = "currentColor" }: IconProps) => (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72c.13.96.37 1.9.72 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.91.35 1.85.59 2.81.72A2 2 0 0122 16.92z" />
+    </svg>
+  ),
+};
 
-  useEffect(() => {
-    client.models.Todo.observeQuery().subscribe({
-      next: (data) => setTodos([...data.items]),
-    });
-  }, []);
+type IconKey = keyof typeof Icon;
 
-  function createTodo() {
-    client.models.Todo.create({ content: window.prompt("Todo content") });
+/* ──────────────────────────────────────────────────────────
+   STEP DEFINITIONS
+   ────────────────────────────────────────────────────────── */
+type Option = { value: string; label: string; icon?: IconKey; sub?: string };
+
+type Step =
+  | { type: "splash"; headline: string; sub: string }
+  | { type: "select"; question: string; field?: string; options: Option[]; sub?: string }
+  | {
+      type: "text";
+      question: string;
+      placeholder: string;
+      field: string;
+      inputType?: string;
+      optional?: boolean;
+      sub?: string;
+    }
+  | { type: "multi"; question: string; sub?: string; field: string; options: Option[] }
+  | { type: "submitted" };
+
+const STEPS: Record<string, Step> = {
+  welcome: {
+    type: "splash",
+    headline: "Let's review your HOA insurance.",
+    sub: "Takes about 2 minutes. No commitment, no spam.",
+  },
+  role: {
+    type: "select",
+    question: "First — which best describes you?",
+    field: "role",
+    options: [
+      { value: "board", label: "Board member or trustee", icon: "Board", sub: "I serve on the HOA board" },
+      { value: "manager", label: "Property manager", icon: "Manager", sub: "I manage the property" },
+      { value: "owner", label: "Unit owner (HO‑6)", icon: "Owner", sub: "I own a unit in the HOA" },
+    ],
+  },
+
+  /* shared */
+  assocName: {
+    type: "text",
+    question: "What's the name of your association?",
+    placeholder: "e.g. Maple Ridge Condominium Trust",
+    field: "associationName",
+  },
+  state: {
+    type: "select",
+    question: "Which state is the property in?",
+    field: "state",
+    options: [
+      { value: "MA", label: "Massachusetts" },
+      { value: "RI", label: "Rhode Island" },
+      { value: "CT", label: "Connecticut" },
+      { value: "NH", label: "New Hampshire" },
+      { value: "OTHER", label: "Other" },
+    ],
+  },
+  city: {
+    type: "text",
+    question: "City or town?",
+    placeholder: "e.g. Marlborough",
+    field: "city",
+  },
+
+  /* board / manager */
+  unitCount: {
+    type: "text",
+    question: "How many units in the association?",
+    placeholder: "e.g. 48",
+    field: "unitCount",
+    inputType: "number",
+  },
+  propertyType: {
+    type: "select",
+    question: "What type of property?",
+    field: "propertyType",
+    options: [
+      { value: "condo", label: "Condominium", icon: "Condo" },
+      { value: "townhouse", label: "Townhouse", icon: "Townhouse" },
+      { value: "mixed", label: "Mixed use", icon: "Mixed" },
+      { value: "other", label: "Other", icon: "Building" },
+    ],
+  },
+  yearBuilt: {
+    type: "text",
+    question: "Approximate year built?",
+    placeholder: "e.g. 1985",
+    field: "yearBuilt",
+    inputType: "number",
+  },
+  coverageNeeds: {
+    type: "multi",
+    question: "What coverage are you looking for?",
+    sub: "Select all that apply.",
+    field: "coverageNeeds",
+    options: [
+      { value: "master_property", label: "Master Property", icon: "Building" },
+      { value: "general_liability", label: "General Liability", icon: "Shield" },
+      { value: "dno", label: "Directors & Officers (D&O)", icon: "Briefcase" },
+      { value: "umbrella", label: "Umbrella / Excess", icon: "Umbrella" },
+      { value: "crime", label: "Crime / Fidelity", icon: "Lock" },
+      { value: "ordinance", label: "Ordinance or Law", icon: "Scale" },
+      { value: "not_sure", label: "Not sure — review everything", icon: "Sparkle" },
+    ],
+  },
+  currentCarrier: {
+    type: "text",
+    question: "Who's your current carrier?",
+    placeholder: "e.g. Amica, or 'not sure'",
+    field: "currentCarrier",
+    optional: true,
+  },
+  renewalDate: {
+    type: "text",
+    question: "When does your policy renew?",
+    placeholder: "e.g. September 2026",
+    field: "renewalDate",
+    optional: true,
+  },
+
+  /* owner */
+  masterDeductible: {
+    type: "select",
+    question: "Do you know your association's master policy deductible?",
+    field: "masterDeductible",
+    options: [
+      { value: "yes_know", label: "Yes, I know it", icon: "Yes" },
+      { value: "no", label: "No", icon: "No" },
+      { value: "not_sure", label: "Not sure", icon: "Question" },
+    ],
+  },
+  deductibleAmount: {
+    type: "text",
+    question: "What's the deductible amount?",
+    placeholder: "e.g. $10,000",
+    field: "deductibleAmount",
+  },
+  ho6Need: {
+    type: "select",
+    question: "What are you looking for?",
+    field: "ho6Need",
+    options: [
+      { value: "new", label: "New HO‑6 policy", icon: "Document" },
+      { value: "review", label: "Review my existing policy", icon: "Shield" },
+      { value: "loss_assessment", label: "Loss assessment coverage", icon: "Scale" },
+      { value: "not_sure", label: "Not sure — help me figure it out", icon: "Question" },
+    ],
+  },
+
+  /* contact */
+  contactName: {
+    type: "text",
+    question: "What's your name?",
+    placeholder: "Full name",
+    field: "contactName",
+  },
+  contactEmail: {
+    type: "text",
+    question: "Best email to reach you?",
+    placeholder: "you@example.com",
+    field: "contactEmail",
+    inputType: "email",
+  },
+  contactPhone: {
+    type: "text",
+    question: "Phone number?",
+    placeholder: "(508) 555-1234",
+    field: "contactPhone",
+    optional: true,
+  },
+
+  submitted: { type: "submitted" },
+};
+
+const FLOW_BOARD = [
+  "welcome", "role", "assocName", "state", "city",
+  "unitCount", "propertyType", "yearBuilt", "coverageNeeds",
+  "currentCarrier", "renewalDate",
+  "contactName", "contactEmail", "contactPhone", "submitted",
+];
+
+const FLOW_OWNER = [
+  "welcome", "role", "assocName", "state", "city",
+  "masterDeductible", "ho6Need",
+  "contactName", "contactEmail", "contactPhone", "submitted",
+];
+
+type FormData = Record<string, string | string[]>;
+
+function getFlow(role: string | null, data: FormData): string[] {
+  if (role === "owner") {
+    const flow = [...FLOW_OWNER];
+    if (data.masterDeductible === "yes_know") {
+      const idx = flow.indexOf("masterDeductible");
+      flow.splice(idx + 1, 0, "deductibleAmount");
+    }
+    return flow;
   }
+  return FLOW_BOARD;
+}
 
+/* ──────────────────────────────────────────────────────────
+   EMAIL BODY (used in real backend wiring later)
+   ────────────────────────────────────────────────────────── */
+function buildEmailBody(data: FormData): string {
+  const roleLabel: Record<string, string> = {
+    board: "Board Member / Trustee",
+    manager: "Property Manager",
+    owner: "Unit Owner (HO-6)",
+  };
+  const lines = [
+    `New quote request from ${data.contactName || "Unknown"}`,
+    "",
+    `Role: ${roleLabel[data.role as string] || data.role || "—"}`,
+    `Association: ${data.associationName || "—"}`,
+    `Location: ${data.city || "—"}, ${data.state || "—"}`,
+  ];
+  if (data.unitCount) lines.push(`Units: ${data.unitCount}`);
+  if (data.propertyType) lines.push(`Property Type: ${data.propertyType}`);
+  if (data.yearBuilt) lines.push(`Year Built: ${data.yearBuilt}`);
+  if (Array.isArray(data.coverageNeeds) && data.coverageNeeds.length)
+    lines.push(`Coverage Needs: ${data.coverageNeeds.join(", ")}`);
+  if (data.currentCarrier) lines.push(`Current Carrier: ${data.currentCarrier}`);
+  if (data.renewalDate) lines.push(`Renewal Date: ${data.renewalDate}`);
+  if (data.masterDeductible) lines.push(`Knows Master Deductible: ${data.masterDeductible}`);
+  if (data.deductibleAmount) lines.push(`Deductible Amount: ${data.deductibleAmount}`);
+  if (data.ho6Need) lines.push(`HO-6 Need: ${data.ho6Need}`);
+  lines.push("", "Contact:", `Name: ${data.contactName || "—"}`, `Email: ${data.contactEmail || "—"}`, `Phone: ${data.contactPhone || "—"}`);
+  return lines.join("\n");
+}
+
+/* ──────────────────────────────────────────────────────────
+   SHARED COMPONENTS
+   ────────────────────────────────────────────────────────── */
+
+function ProgressBar({ current, total }: { current: number; total: number }) {
+  const pct = Math.max(0, Math.min(100, Math.round((current / total) * 100)));
   return (
-    <main>
-      <h1>My todos</h1>
-      <button onClick={createTodo}>+ new</button>
-      <ul>
-        {todos.map((todo) => (
-          <li key={todo.id}>{todo.content}</li>
-        ))}
-      </ul>
-      <div>
-        🥳 App successfully hosted. Try creating a new todo.
-        <br />
-        <a href="https://docs.amplify.aws/react/start/quickstart/#make-frontend-updates">
-          Review next step of this tutorial.
-        </a>
-      </div>
-    </main>
+    <div className="qf-progress">
+      <div className="qf-progress-fill" style={{ width: `${pct}%` }} />
+    </div>
   );
 }
 
-export default App;
+function SlideIn({ children, keyVal, direction }: { children: ReactNode; keyVal: string; direction: 1 | -1 }) {
+  const [vis, setVis] = useState(false);
+  useEffect(() => {
+    setVis(false);
+    const t = requestAnimationFrame(() => setVis(true));
+    return () => cancelAnimationFrame(t);
+  }, [keyVal]);
+  const offset = direction === 1 ? 32 : -32;
+  return (
+    <div
+      style={{
+        opacity: vis ? 1 : 0,
+        transform: vis ? "translate3d(0,0,0)" : `translate3d(${offset}px,0,0)`,
+        transition: "opacity 0.42s cubic-bezier(.2,.7,.3,1), transform 0.5s cubic-bezier(.2,.7,.3,1)",
+        willChange: "opacity, transform",
+      }}
+    >
+      {children}
+    </div>
+  );
+}
+
+function CardOption({
+  label,
+  sub,
+  iconKey,
+  selected,
+  onClick,
+  showCheck,
+}: {
+  label: string;
+  sub?: string;
+  iconKey?: IconKey;
+  selected: boolean;
+  onClick: () => void;
+  showCheck?: boolean;
+}) {
+  const [hov, setHov] = useState(false);
+  const IconCmp = iconKey ? Icon[iconKey] : null;
+  const active = selected;
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      onMouseEnter={() => setHov(true)}
+      onMouseLeave={() => setHov(false)}
+      className="qf-card-option"
+      style={{
+        background: active ? C.accentDim : hov ? C.cardHover : C.card,
+        border: `1.5px solid ${active ? C.borderActive : hov ? "#2c3a55" : C.border}`,
+        boxShadow: active ? `0 0 0 4px ${C.accentGlow}, 0 8px 24px rgba(0,0,0,0.4)` : hov ? "0 6px 20px rgba(0,0,0,0.35)" : "0 2px 8px rgba(0,0,0,0.25)",
+        transform: hov && !active ? "translateY(-2px)" : "translateY(0)",
+      }}
+    >
+      {IconCmp && (
+        <span
+          className="qf-card-icon"
+          style={{
+            background: active ? C.accent : C.accentDim,
+            color: active ? C.bg : C.accent,
+            transition: "all 0.25s ease",
+          }}
+        >
+          <IconCmp size={26} />
+        </span>
+      )}
+      <span className="qf-card-text">
+        <span className="qf-card-label">{label}</span>
+        {sub && <span className="qf-card-sub">{sub}</span>}
+      </span>
+      {showCheck && (
+        <span
+          className="qf-card-check"
+          style={{
+            background: active ? C.accent : "transparent",
+            border: `2px solid ${active ? C.accent : C.border}`,
+            color: active ? C.bg : "transparent",
+          }}
+        >
+          <Icon.Check size={14} />
+        </span>
+      )}
+    </button>
+  );
+}
+
+function TextField({
+  placeholder,
+  value,
+  onChange,
+  onSubmit,
+  type = "text",
+  autoFocus = true,
+}: {
+  placeholder: string;
+  value: string;
+  onChange: (v: string) => void;
+  onSubmit: () => void;
+  type?: string;
+  autoFocus?: boolean;
+}) {
+  const ref = useRef<HTMLInputElement>(null);
+  useEffect(() => {
+    if (autoFocus && ref.current) {
+      const t = setTimeout(() => ref.current?.focus(), 250);
+      return () => clearTimeout(t);
+    }
+  }, [autoFocus]);
+  return (
+    <input
+      ref={ref}
+      type={type}
+      value={value}
+      onChange={(e) => onChange(e.target.value)}
+      onKeyDown={(e) => {
+        if (e.key === "Enter") {
+          e.preventDefault();
+          onSubmit();
+        }
+      }}
+      placeholder={placeholder}
+      className="qf-input"
+      autoComplete="off"
+    />
+  );
+}
+
+function PrimaryButton({
+  onClick,
+  label = "Continue",
+  disabled = false,
+  loading = false,
+}: {
+  onClick: () => void;
+  label?: string;
+  disabled?: boolean;
+  loading?: boolean;
+}) {
+  const [hov, setHov] = useState(false);
+  const style: CSSProperties = {
+    background: disabled ? C.border : hov ? C.accentHover : C.accent,
+    color: disabled ? C.textMuted : C.bg,
+    boxShadow: disabled ? "none" : hov ? `0 14px 32px ${C.accentGlow}` : `0 8px 22px ${C.accentGlow}`,
+    transform: hov && !disabled ? "translateY(-1px)" : "translateY(0)",
+    cursor: disabled ? "default" : "pointer",
+    opacity: disabled ? 0.55 : 1,
+  };
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      disabled={disabled}
+      onMouseEnter={() => setHov(true)}
+      onMouseLeave={() => setHov(false)}
+      className="qf-primary-btn"
+      style={style}
+    >
+      <span>{loading ? "Sending…" : label}</span>
+      {!loading && <Icon.ArrowRight size={18} />}
+    </button>
+  );
+}
+
+function BackButton({ onClick }: { onClick: () => void }) {
+  const [hov, setHov] = useState(false);
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      onMouseEnter={() => setHov(true)}
+      onMouseLeave={() => setHov(false)}
+      className="qf-back-btn"
+      style={{ color: hov ? C.text : C.textMuted }}
+    >
+      <Icon.ArrowLeft size={16} />
+      <span>Back</span>
+    </button>
+  );
+}
+
+/* ──────────────────────────────────────────────────────────
+   APP
+   ────────────────────────────────────────────────────────── */
+export default function App() {
+  const [stepIndex, setStepIndex] = useState(0);
+  const [data, setData] = useState<FormData>({});
+  const [role, setRole] = useState<string | null>(null);
+  const [inputVal, setInputVal] = useState("");
+  const [multiVal, setMultiVal] = useState<string[]>([]);
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState("");
+  const [direction, setDirection] = useState<1 | -1>(1);
+
+  const flow = useMemo(() => getFlow(role, data), [role, data]);
+  const stepKey = flow[stepIndex];
+  const step = STEPS[stepKey];
+  const totalSteps = flow.length - 1;
+
+  const resetInput = useCallback(() => {
+    setInputVal("");
+    setMultiVal([]);
+    setError("");
+  }, []);
+
+  const goNext = useCallback(() => {
+    setDirection(1);
+    setStepIndex((i) => Math.min(i + 1, flow.length - 1));
+    resetInput();
+  }, [flow.length, resetInput]);
+
+  const goBack = useCallback(() => {
+    if (stepIndex > 0) {
+      setDirection(-1);
+      setStepIndex((i) => i - 1);
+      resetInput();
+    }
+  }, [stepIndex, resetInput]);
+
+  function handleSplash() {
+    goNext();
+  }
+
+  function handleSelect(value: string) {
+    if (stepKey === "role") {
+      setRole(value);
+      setData((d) => ({ ...d, role: value }));
+    } else if (step.type === "select" && step.field) {
+      setData((d) => ({ ...d, [step.field as string]: value }));
+    }
+    setTimeout(goNext, 220);
+  }
+
+  function handleTextSubmit() {
+    if (step.type !== "text") return;
+    if (!step.optional && !inputVal.trim()) {
+      setError("Please enter a value to continue.");
+      return;
+    }
+    const newData = { ...data, [step.field]: inputVal.trim() };
+    setData(newData);
+    if (flow[stepIndex + 1] === "submitted") {
+      submitForm(newData);
+    } else {
+      goNext();
+    }
+  }
+
+  function toggleMulti(value: string) {
+    setMultiVal((prev) =>
+      prev.includes(value) ? prev.filter((v) => v !== value) : [...prev, value]
+    );
+    setError("");
+  }
+
+  function handleMultiSubmit() {
+    if (multiVal.length === 0) {
+      setError("Select at least one option.");
+      return;
+    }
+    if (step.type === "multi") {
+      setData((d) => ({ ...d, [step.field]: multiVal }));
+    }
+    goNext();
+  }
+
+  async function submitForm(finalData: FormData) {
+    setSubmitting(true);
+    try {
+      // TODO: replace with API call (SES Lambda / SendGrid)
+      // eslint-disable-next-line no-console
+      console.log("QUOTE SUBMISSION:", finalData);
+      // eslint-disable-next-line no-console
+      console.log("Email body preview:\n" + buildEmailBody(finalData));
+      // expose for debugging
+      (window as unknown as { __quoteData?: FormData }).__quoteData = finalData;
+      setDirection(1);
+      setStepIndex(flow.length - 1);
+      resetInput();
+    } catch {
+      setError("Something went wrong. Please try again.");
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
+  /* keyboard: Enter on splash advances */
+  useEffect(() => {
+    if (step?.type !== "splash") return;
+    function onKey(e: KeyboardEvent) {
+      if (e.key === "Enter") handleSplash();
+    }
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [stepKey]);
+
+  return (
+    <div className="qf-root">
+      <ProgressBar current={Math.min(stepIndex, totalSteps)} total={totalSteps} />
+      {stepIndex > 0 && step?.type !== "submitted" && <BackButton onClick={goBack} />}
+
+      <div className="qf-stage">
+        <SlideIn keyVal={stepKey} direction={direction}>
+          {/* SPLASH */}
+          {step?.type === "splash" && (
+            <div className="qf-center">
+              <div className="qf-splash-icon">
+                <svg width="64" height="64" viewBox="0 0 64 64" fill="none">
+                  <rect width="64" height="64" rx="16" fill={C.accentDim} />
+                  <path
+                    d="M20 32l8 8 16-18"
+                    stroke={C.accent}
+                    strokeWidth="4"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+              </div>
+              <h1 className="qf-headline">{step.headline}</h1>
+              <p className="qf-sub">{step.sub}</p>
+              <PrimaryButton onClick={handleSplash} label="Get Started" />
+              <p className="qf-hint">Press Enter to start</p>
+            </div>
+          )}
+
+          {/* SELECT */}
+          {step?.type === "select" && (
+            <div>
+              <h2 className="qf-question">{step.question}</h2>
+              {step.sub && <p className="qf-sub-small">{step.sub}</p>}
+              <div className="qf-options">
+                {step.options.map((opt) => {
+                  const selectedVal =
+                    stepKey === "role" ? role : (step.field ? (data[step.field] as string) : undefined);
+                  return (
+                    <CardOption
+                      key={opt.value}
+                      label={opt.label}
+                      sub={opt.sub}
+                      iconKey={opt.icon}
+                      selected={selectedVal === opt.value}
+                      onClick={() => handleSelect(opt.value)}
+                    />
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          {/* TEXT */}
+          {step?.type === "text" && (
+            <div>
+              <h2 className="qf-question">{step.question}</h2>
+              {step.optional && (
+                <p className="qf-sub-small">Optional — press Continue to skip</p>
+              )}
+              <div className="qf-text-wrap">
+                <TextField
+                  placeholder={step.placeholder}
+                  value={inputVal}
+                  onChange={(v) => {
+                    setInputVal(v);
+                    setError("");
+                  }}
+                  onSubmit={handleTextSubmit}
+                  type={step.inputType || "text"}
+                />
+              </div>
+              {error && <p className="qf-error">{error}</p>}
+              <PrimaryButton
+                onClick={handleTextSubmit}
+                label={flow[stepIndex + 1] === "submitted" ? "Submit request" : "Continue"}
+                disabled={submitting}
+                loading={submitting}
+              />
+            </div>
+          )}
+
+          {/* MULTI */}
+          {step?.type === "multi" && (
+            <div>
+              <h2 className="qf-question">{step.question}</h2>
+              {step.sub && <p className="qf-sub-small">{step.sub}</p>}
+              <div className="qf-options">
+                {step.options.map((opt) => (
+                  <CardOption
+                    key={opt.value}
+                    label={opt.label}
+                    iconKey={opt.icon}
+                    selected={multiVal.includes(opt.value)}
+                    onClick={() => toggleMulti(opt.value)}
+                    showCheck
+                  />
+                ))}
+              </div>
+              {error && <p className="qf-error">{error}</p>}
+              <PrimaryButton onClick={handleMultiSubmit} />
+            </div>
+          )}
+
+          {/* SUBMITTED */}
+          {step?.type === "submitted" && (
+            <div className="qf-center">
+              <div className="qf-success-icon">
+                <svg width="80" height="80" viewBox="0 0 80 80" fill="none">
+                  <circle cx="40" cy="40" r="40" fill={C.accentDim} />
+                  <circle cx="40" cy="40" r="30" fill={C.accent} />
+                  <path
+                    d="M26 40l10 10 18-22"
+                    stroke={C.bg}
+                    strokeWidth="5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+              </div>
+              <h2 className="qf-headline">You're all set.</h2>
+              <p className="qf-sub">
+                We'll review your information and reach out within one business day.
+              </p>
+              <a href="tel:+15082332261" className="qf-phone-cta">
+                <Icon.Phone size={16} />
+                <span>Or call us — 508‑233‑2261</span>
+              </a>
+              <a href="https://www.protectmyhoa.com" className="qf-back-link">
+                ← Back to ProtectMyHOA.com
+              </a>
+            </div>
+          )}
+        </SlideIn>
+      </div>
+
+      {step?.type !== "submitted" && (
+        <p className="qf-footer">HOA Insurance Agency · Marlborough, MA</p>
+      )}
+    </div>
+  );
+}
