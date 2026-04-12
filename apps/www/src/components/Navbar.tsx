@@ -1,12 +1,22 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { NAV_LINKS, QUOTE_URL } from "../constants";
 import "./Navbar.css";
 
 export function Navbar({ currentPath }: { currentPath: string }) {
   const [open, setOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    function onScroll() {
+      setScrolled(window.scrollY > 60);
+    }
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
 
   return (
-    <nav className="navbar">
+    <nav className={"navbar" + (scrolled ? " navbar--scrolled" : "")}>
       <div className="navbar-inner container">
         <a href="/" className="navbar-logo" onClick={() => setOpen(false)}>
           <img src="/logo.png" alt="HOA Insurance Agency" />

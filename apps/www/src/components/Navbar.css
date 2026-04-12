@@ -1,10 +1,22 @@
 .navbar {
-  position: sticky;
+  position: fixed;
   top: 0;
+  left: 0;
+  right: 0;
   z-index: 100;
-  background: var(--color-white);
-  border-bottom: 1px solid var(--color-gray-200);
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
   height: var(--nav-height);
+  transition: background 0.3s ease, border-color 0.3s ease;
+}
+
+.navbar--scrolled {
+  background: rgba(255, 255, 255, 0.97);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--color-gray-200);
 }
 
 .navbar-inner {
@@ -15,37 +27,60 @@
 }
 
 .navbar-logo img {
-  height: 40px;
+  height: 44px;
   width: auto;
+  filter: brightness(0) invert(1);
+  transition: filter 0.3s ease;
+}
+
+.navbar--scrolled .navbar-logo img {
+  filter: none;
 }
 
 .navbar-links {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 4px;
 }
 
 .navbar-link {
-  padding: 8px 16px;
+  padding: 8px 14px;
   font-size: 14px;
   font-weight: 500;
-  color: var(--color-gray-600);
+  color: rgba(255, 255, 255, 0.85);
   border-radius: 6px;
   transition: all 0.2s ease;
+  border: none;
+  background: none;
+  font-family: inherit;
+  cursor: pointer;
 }
 
 .navbar-link:hover {
+  color: var(--color-white);
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.navbar--scrolled .navbar-link {
+  color: var(--color-gray-600);
+}
+
+.navbar--scrolled .navbar-link:hover {
   color: var(--color-gray-900);
   background: var(--color-gray-50);
 }
 
 .navbar-link--active {
-  color: var(--color-accent);
+  color: var(--color-white);
   font-weight: 600;
 }
 
+.navbar--scrolled .navbar-link--active {
+  color: var(--color-accent);
+}
+
 .navbar-cta {
-  margin-left: 12px;
+  margin-left: 8px;
   padding: 10px 20px;
   font-size: 14px;
 }
@@ -63,9 +98,13 @@
   display: block;
   width: 22px;
   height: 2px;
-  background: var(--color-gray-700);
+  background: var(--color-white);
   border-radius: 2px;
   transition: all 0.3s ease;
+}
+
+.navbar--scrolled .hamburger-bar {
+  background: var(--color-gray-700);
 }
 
 .hamburger-bar--open:nth-child(1) {
@@ -111,6 +150,16 @@
   .navbar-link {
     font-size: 18px;
     padding: 14px 16px;
+    color: var(--color-gray-700);
+  }
+
+  .navbar-link:hover {
+    color: var(--color-gray-900);
+    background: var(--color-gray-50);
+  }
+
+  .navbar-link--active {
+    color: var(--color-accent);
   }
 
   .navbar-cta {
