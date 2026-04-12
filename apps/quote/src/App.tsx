@@ -663,6 +663,194 @@ function ProgressBar({ current, total }: { current: number; total: number }) {
   );
 }
 
+/* ── Typing animation ── */
+function TypeWriter({ text, speed = 32, onDone }: { text: string; speed?: number; onDone?: () => void }) {
+  const [displayed, setDisplayed] = useState("");
+  const [done, setDone] = useState(false);
+
+  useEffect(() => {
+    setDisplayed("");
+    setDone(false);
+    let i = 0;
+    const id = setInterval(() => {
+      i++;
+      setDisplayed(text.slice(0, i));
+      if (i >= text.length) {
+        clearInterval(id);
+        setDone(true);
+        onDone?.();
+      }
+    }, speed);
+    return () => clearInterval(id);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [text, speed]);
+
+  return (
+    <span>
+      {displayed}
+      {!done && <span className="qf-cursor">|</span>}
+    </span>
+  );
+}
+
+/* ── Progress ring around avatar ── */
+function ProgressRing({ progress, size = 92, stroke = 3 }: { progress: number; size?: number; stroke?: number }) {
+  const c = useTheme();
+  const radius = (size - stroke) / 2;
+  const circumference = 2 * Math.PI * radius;
+  const dashOffset = circumference * (1 - Math.min(1, Math.max(0, progress)));
+
+  return (
+    <svg
+      className="qf-progress-ring"
+      width={size}
+      height={size}
+      viewBox={`0 0 ${size} ${size}`}
+      style={{ position: "absolute", top: -4, left: -4 }}
+    >
+      {/* Track */}
+      <circle
+        cx={size / 2}
+        cy={size / 2}
+        r={radius}
+        fill="none"
+        stroke={c.border}
+        strokeWidth={stroke}
+        opacity={0.4}
+      />
+      {/* Progress */}
+      <circle
+        cx={size / 2}
+        cy={size / 2}
+        r={radius}
+        fill="none"
+        stroke={c.accent}
+        strokeWidth={stroke}
+        strokeLinecap="round"
+        strokeDasharray={circumference}
+        strokeDashoffset={dashOffset}
+        transform={`rotate(-90 ${size / 2} ${size / 2})`}
+        style={{ transition: "stroke-dashoffset 0.6s cubic-bezier(0.2,0.7,0.3,1)" }}
+      />
+    </svg>
+  );
+}
+
+/* ── Confetti burst ── */
+function Confetti({ active }: { active: boolean }) {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+
+  useEffect(() => {
+    if (!active || !canvasRef.current) return;
+    const canvas = canvasRef.current;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    const colors = ["#4da6ff", "#d1b378", "#3fb950", "#f85149", "#79bbff", "#e8d5a8", "#ff6eb4", "#ffd700"];
+    const particles: {
+      x: number; y: number; vx: number; vy: number;
+      w: number; h: number; color: string; rotation: number; spin: number;
+      gravity: number; opacity: number;
+    }[] = [];
+
+    for (let i = 0; i < 120; i++) {
+      particles.push({
+        x: canvas.width / 2 + (Math.random() - 0.5) * 200,
+        y: canvas.height * 0.4,
+        vx: (Math.random() - 0.5) * 16,
+        vy: -Math.random() * 18 - 4,
+        w: Math.random() * 8 + 4,
+        h: Math.random() * 6 + 2,
+        color: colors[Math.floor(Math.random() * colors.length)],
+        rotation: Math.random() * 360,
+        spin: (Math.random() - 0.5) * 12,
+        gravity: 0.25 + Math.random() * 0.15,
+        opacity: 1,
+      });
+    }
+
+    let frame: number;
+    let elapsed = 0;
+
+    function draw() {
+      ctx!.clearRect(0, 0, canvas.width, canvas.height);
+      elapsed++;
+
+      for (const p of particles) {
+        p.vy += p.gravity;
+        p.x += p.vx;
+        p.y += p.vy;
+        p.rotation += p.spin;
+        p.vx *= 0.99;
+        if (elapsed > 60) p.opacity = Math.max(0, p.opacity - 0.015);
+
+        ctx!.save();
+        ctx!.translate(p.x, p.y);
+        ctx!.rotate((p.rotation * Math.PI) / 180);
+        ctx!.globalAlpha = p.opacity;
+        ctx!.fillStyle = p.color;
+        ctx!.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
+        ctx!.restore();
+      }
+
+      if (elapsed < 180 && particles.some((p) => p.opacity > 0)) {
+        frame = requestAnimationFrame(draw);
+      }
+    }
+
+    frame = requestAnimationFrame(draw);
+    return () => cancelAnimationFrame(frame);
+  }, [active]);
+
+  if (!active) return null;
+
+  return (
+    <canvas
+      ref={canvasRef}
+      style={{
+        position: "fixed",
+        inset: 0,
+        zIndex: 9999,
+        pointerEvents: "none",
+      }}
+    />
+  );
+}
+
+/* ── Smart prefill from URL params ── */
+const STATE_SLUGS: Record<string, string> = {
+  massachusetts: "MA",
+  "rhode-island": "RI",
+  connecticut: "CT",
+  "new-hampshire": "NH",
+  "new-york": "NY",
+  oklahoma: "OK",
+};
+
+function getPrefillFromUrl(): Partial<{ state: string }> {
+  try {
+    const params = new URLSearchParams(window.location.search);
+    const stateParam = params.get("state");
+    if (stateParam) {
+      // Direct: ?state=MA
+      return { state: stateParam.toUpperCase() };
+    }
+    // Check referrer for state slug: came from /hoa-insurance-massachusetts
+    const ref = document.referrer || "";
+    const match = ref.match(/hoa-insurance-([a-z-]+?)(?:\/|$)/);
+    if (match) {
+      const abbr = STATE_SLUGS[match[1]];
+      if (abbr) return { state: abbr };
+    }
+  } catch {
+    /* ignore */
+  }
+  return {};
+}
+
 /* Sun / moon indicator (also acts as a manual override toggle) */
 function ThemeIndicator({ isDay, onToggle }: { isDay: boolean; onToggle: () => void }) {
   const c = useTheme();
@@ -916,14 +1104,17 @@ function AgentHeader({
   agent,
   greeting,
   compact,
+  progress,
+  typeGreeting,
 }: {
   agent: Agent;
   greeting?: string;
   compact?: boolean;
+  progress?: number;
+  typeGreeting?: boolean;
 }) {
   const c = useTheme();
   const [imgFailed, setImgFailed] = useState(false);
-  // reset error state if agent changes (e.g., after restart)
   useEffect(() => setImgFailed(false), [agent.photo]);
   return (
     <div className={"qf-agent-header" + (compact ? " qf-agent-header--compact" : "")}>
@@ -932,8 +1123,10 @@ function AgentHeader({
         style={{
           background: c.accentDim,
           borderColor: c.border,
+          position: "relative",
         }}
       >
+        {progress !== undefined && <ProgressRing progress={progress} />}
         {!imgFailed ? (
           <img
             src={agent.photo}
@@ -947,7 +1140,7 @@ function AgentHeader({
       </div>
       {greeting && (
         <p className="qf-agent-greeting" style={{ color: c.textMuted }}>
-          {greeting}
+          {typeGreeting ? <TypeWriter text={greeting} speed={28} /> : greeting}
         </p>
       )}
     </div>
@@ -1041,8 +1234,16 @@ function QuoteFlow({ isDay, onToggleTheme }: { isDay: boolean; onToggleTheme: ()
   const c = useTheme();
   // Hydrate from localStorage on first render
   const persisted = useMemo(() => loadState(), []);
+  const prefill = useMemo(() => getPrefillFromUrl(), []);
   const [stepIndex, setStepIndex] = useState<number>(persisted?.stepIndex ?? 0);
-  const [data, setData] = useState<FormData>(persisted?.data ?? {});
+  const [data, setData] = useState<FormData>(() => {
+    const base = persisted?.data ?? {};
+    // Apply URL prefill if no persisted data
+    if (!persisted && prefill.state) {
+      base.state = prefill.state;
+    }
+    return base;
+  });
   const [role, setRole] = useState<string | null>(persisted?.role ?? null);
   const [inputVal, setInputVal] = useState<string>(persisted?.inputVal ?? "");
   const [multiVal, setMultiVal] = useState<string[]>(persisted?.multiVal ?? []);
@@ -1050,6 +1251,7 @@ function QuoteFlow({ isDay, onToggleTheme }: { isDay: boolean; onToggleTheme: ()
   const [error, setError] = useState("");
   const [direction, setDirection] = useState<1 | -1>(1);
   const [agent, setAgent] = useState<Agent>(() => persisted?.agent ?? pickAgent());
+  const [showConfetti, setShowConfetti] = useState(false);
 
   function handleRestart() {
     if (stepIndex === 0) return;
@@ -1165,9 +1367,10 @@ function QuoteFlow({ isDay, onToggleTheme }: { isDay: boolean; onToggleTheme: ()
       setDirection(1);
       setStepIndex(flow.length - 1);
       resetInput();
-      // Persistence effect also clears storage when stepKey becomes "submitted",
-      // but we clear here too so it's gone before any subsequent renders.
       clearState();
+      // Celebrate!
+      setShowConfetti(true);
+      setTimeout(() => setShowConfetti(false), 4000);
     } catch (err) {
       // eslint-disable-next-line no-console
       console.error("Quote submission failed:", err);
@@ -1195,6 +1398,7 @@ function QuoteFlow({ isDay, onToggleTheme }: { isDay: boolean; onToggleTheme: ()
   const showAgentHeader = step?.type !== "submitted" && step?.type !== "splash";
   const firstName = (data.contactName as string | undefined)?.split(" ")[0];
   const agentFirst = agent.name.split(" ")[0];
+  const progress = totalSteps > 0 ? Math.min(stepIndex, totalSteps) / totalSteps : 0;
   const greeting = useMemo(() => {
     // Splash uses the headline itself for the agent's intro line
     if (stepKey === "welcome") return undefined;
@@ -1208,6 +1412,7 @@ function QuoteFlow({ isDay, onToggleTheme }: { isDay: boolean; onToggleTheme: ()
 
   return (
     <div className="qf-root">
+      <Confetti active={showConfetti} />
       <ProgressBar current={Math.min(stepIndex, totalSteps)} total={totalSteps} />
       {stepIndex > 0 && step?.type !== "submitted" && <BackButton onClick={goBack} />}
       <div className="qf-top-right">
@@ -1216,7 +1421,14 @@ function QuoteFlow({ isDay, onToggleTheme }: { isDay: boolean; onToggleTheme: ()
       </div>
 
       <div className="qf-stage">
-        {showAgentHeader && <AgentHeader agent={agent} greeting={greeting} />}
+        {showAgentHeader && (
+          <AgentHeader
+            agent={agent}
+            greeting={greeting}
+            progress={progress}
+            typeGreeting
+          />
+        )}
         <SlideIn keyVal={stepKey} direction={direction}>
           {/* SPLASH */}
           {step?.type === "splash" && (

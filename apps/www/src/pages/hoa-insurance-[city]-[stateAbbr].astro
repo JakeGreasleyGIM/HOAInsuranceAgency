@@ -26,7 +26,7 @@ const { city } = Astro.props;
     backgroundImage="/images/modern-building.jpg"
     backgroundVideo="/images/hero-video.mp4"
     ctaText="Request Insurance Review"
-    ctaHref={QUOTE_URL}
+    ctaHref={`${QUOTE_URL}?state=${city.stateAbbr.toUpperCase()}`}
     compact
   />
 
