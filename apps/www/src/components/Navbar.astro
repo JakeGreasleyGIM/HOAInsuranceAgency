@@ -1,0 +1,257 @@
+---
+import { NAV_LINKS, QUOTE_URL } from "../constants";
+
+interface Props {
+  currentPath: string;
+}
+
+const { currentPath } = Astro.props;
+---
+
+<nav class="navbar" id="navbar">
+  <div class="navbar-inner container">
+    <a href="/" class="navbar-logo">
+      <img src="/logo.png" alt="HOA Insurance Agency" />
+    </a>
+
+    <div class="navbar-links" id="navbar-links">
+      {NAV_LINKS.map((l) => {
+        const isHash = l.path.includes("#");
+        const isActive = !isHash && currentPath.replace(/\/$/, "") === l.path.replace(/\/$/, "");
+        return (
+          <a
+            href={l.path}
+            class={"navbar-link" + (isActive ? " navbar-link--active" : "")}
+          >
+            {l.label}
+          </a>
+        );
+      })}
+      <a href={QUOTE_URL} class="btn btn-gold navbar-cta">
+        Request Insurance Review
+      </a>
+    </div>
+
+    <button
+      class="navbar-hamburger"
+      id="navbar-hamburger"
+      aria-label="Open menu"
+    >
+      <span class="hamburger-bar"></span>
+      <span class="hamburger-bar"></span>
+      <span class="hamburger-bar"></span>
+    </button>
+  </div>
+</nav>
+
+<script>
+  const navbar = document.getElementById("navbar")!;
+  const links = document.getElementById("navbar-links")!;
+  const hamburger = document.getElementById("navbar-hamburger")!;
+  const bars = hamburger.querySelectorAll(".hamburger-bar");
+
+  let open = false;
+
+  function toggle() {
+    open = !open;
+    links.classList.toggle("navbar-links--open", open);
+    navbar.classList.toggle("navbar--open", open);
+    bars.forEach((b) => b.classList.toggle("hamburger-bar--open", open));
+    hamburger.setAttribute("aria-label", open ? "Close menu" : "Open menu");
+  }
+
+  hamburger.addEventListener("click", toggle);
+
+  links.querySelectorAll("a").forEach((a) => {
+    a.addEventListener("click", () => {
+      if (open) toggle();
+    });
+  });
+
+  function onScroll() {
+    navbar.classList.toggle("navbar--scrolled", window.scrollY > 60);
+  }
+  onScroll();
+  window.addEventListener("scroll", onScroll, { passive: true });
+</script>
+
+<style is:global>
+  .navbar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 9999;
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    height: var(--nav-height);
+    transition: background 0.3s ease, border-color 0.3s ease;
+  }
+
+  .navbar--scrolled,
+  .navbar--open {
+    background: #ffffff !important;
+    border-bottom-color: var(--color-gray-200) !important;
+  }
+
+  .navbar-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 100%;
+  }
+
+  .navbar-logo img {
+    height: 44px;
+    width: auto;
+    filter: brightness(0) invert(1);
+    transition: filter 0.3s ease;
+  }
+
+  .navbar--scrolled .navbar-logo img,
+  .navbar--open .navbar-logo img {
+    filter: none;
+  }
+
+  .navbar-links {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .navbar-link {
+    padding: 8px 14px;
+    font-size: 14px;
+    font-weight: 500;
+    color: rgba(255, 255, 255, 0.85);
+    border-radius: 6px;
+    transition: all 0.2s ease;
+  }
+
+  .navbar-link:hover {
+    color: #ffffff;
+    background: rgba(255, 255, 255, 0.1);
+  }
+
+  .navbar--scrolled .navbar-link {
+    color: var(--color-gray-600);
+  }
+
+  .navbar--scrolled .navbar-link:hover {
+    color: var(--color-gray-900);
+    background: var(--color-gray-50);
+  }
+
+  .navbar-link--active {
+    color: #ffffff;
+    font-weight: 600;
+  }
+
+  .navbar--scrolled .navbar-link--active {
+    color: var(--color-accent);
+  }
+
+  .navbar-cta {
+    margin-left: 8px;
+    padding: 10px 20px;
+    font-size: 14px;
+  }
+
+  .navbar-hamburger {
+    display: none;
+    flex-direction: column;
+    gap: 5px;
+    padding: 8px;
+    background: none;
+    border: none;
+    cursor: pointer;
+  }
+
+  .hamburger-bar {
+    display: block;
+    width: 22px;
+    height: 2px;
+    background: #ffffff;
+    border-radius: 2px;
+    transition: all 0.3s ease;
+  }
+
+  .navbar--scrolled .hamburger-bar,
+  .navbar--open .hamburger-bar {
+    background: var(--color-gray-700);
+  }
+
+  .hamburger-bar--open:nth-child(1) {
+    transform: rotate(45deg) translate(5px, 5px);
+  }
+
+  .hamburger-bar--open:nth-child(2) {
+    opacity: 0;
+  }
+
+  .hamburger-bar--open:nth-child(3) {
+    transform: rotate(-45deg) translate(5px, -5px);
+  }
+
+  /* ── Mobile ── */
+  @media (max-width: 768px) {
+    .navbar-hamburger {
+      display: flex;
+    }
+
+    .navbar-links {
+      position: fixed !important;
+      top: var(--nav-height) !important;
+      left: 0 !important;
+      right: 0 !important;
+      width: 100% !important;
+      height: calc(100vh - var(--nav-height)) !important;
+      height: calc(100dvh - var(--nav-height)) !important;
+      z-index: 10000 !important;
+      background: #ffffff !important;
+      display: flex !important;
+      flex-direction: column !important;
+      align-items: stretch !important;
+      padding: 32px 24px !important;
+      gap: 4px !important;
+      overflow-y: auto !important;
+      visibility: hidden;
+      transform: translateY(-20px);
+      opacity: 0;
+      transition: visibility 0s 0.3s, transform 0.3s ease, opacity 0.3s ease;
+    }
+
+    .navbar-links--open {
+      visibility: visible !important;
+      transform: translateY(0) !important;
+      opacity: 1 !important;
+      transition: visibility 0s, transform 0.3s ease, opacity 0.3s ease !important;
+    }
+
+    .navbar-links .navbar-link {
+      font-size: 18px;
+      padding: 14px 16px;
+      color: var(--color-gray-700) !important;
+    }
+
+    .navbar-links .navbar-link:hover {
+      color: var(--color-gray-900) !important;
+      background: var(--color-gray-50) !important;
+    }
+
+    .navbar-links .navbar-link--active {
+      color: var(--color-accent) !important;
+    }
+
+    .navbar-links .navbar-cta {
+      margin-left: 0;
+      margin-top: 16px;
+      text-align: center;
+      justify-content: center;
+      font-size: 16px;
+      padding: 16px 24px;
+    }
+  }
+</style>
