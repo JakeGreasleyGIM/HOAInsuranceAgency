@@ -5,6 +5,7 @@ interface HeroProps {
   title: string;
   subtitle?: string;
   backgroundImage: string;
+  backgroundVideo?: string;
   ctaText?: string;
   ctaHref?: string;
   ctaInternal?: boolean;
@@ -15,6 +16,7 @@ export function Hero({
   title,
   subtitle,
   backgroundImage,
+  backgroundVideo,
   ctaText,
   ctaHref,
   ctaInternal,
@@ -25,6 +27,19 @@ export function Hero({
       className={"hero" + (compact ? " hero--compact" : "")}
       style={{ backgroundImage: `url(${backgroundImage})` }}
     >
+      {backgroundVideo && (
+        <video
+          className="hero-video"
+          autoPlay
+          muted
+          loop
+          playsInline
+          preload="auto"
+          poster={backgroundImage}
+        >
+          <source src={backgroundVideo} type="video/mp4" />
+        </video>
+      )}
       <div className="hero-overlay" />
       <div className="hero-content container">
         <h1 className="hero-title">{title}</h1>

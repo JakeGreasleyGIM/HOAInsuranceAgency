@@ -37,6 +37,7 @@ export function Home() {
         title="HOA Insurance, Built for Associations"
         subtitle="Independent brokerage specializing in HOA master policies and HO-6 condo unit owner coverage. Boards and trustees make high-stakes decisions. Our job is to make those decisions clear, defendable, and properly insured."
         backgroundImage="/images/hero-people.jpg"
+        backgroundVideo="/images/hero-video.mp4"
         ctaText="Request Insurance Review"
         ctaHref={QUOTE_URL}
       />
