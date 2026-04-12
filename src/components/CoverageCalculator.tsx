@@ -209,6 +209,13 @@ export function CoverageCalculator() {
           Source: "Coverage Calculator",
         }),
       });
+      if (typeof window !== "undefined" && (window as any).gtag) {
+        (window as any).gtag("event", "conversion", {
+          send_to: "AW-18085022517/submit_lead_form",
+          value: 1.0,
+          currency: "USD",
+        });
+      }
       setEmailSent(true);
     } catch {
       /* silently fail — results still show */

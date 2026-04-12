@@ -1368,6 +1368,14 @@ function QuoteFlow({ isDay, onToggleTheme }: { isDay: boolean; onToggleTheme: ()
       setStepIndex(flow.length - 1);
       resetInput();
       clearState();
+      // Fire Google Ads conversion
+      if (typeof window !== "undefined" && (window as any).gtag) {
+        (window as any).gtag("event", "conversion", {
+          send_to: "AW-18085022517/submit_lead_form",
+          value: 1.0,
+          currency: "USD",
+        });
+      }
       // Celebrate!
       setShowConfetti(true);
       setTimeout(() => setShowConfetti(false), 4000);
