@@ -1,0 +1,99 @@
+---
+import { InstantAssessment } from "../../components/InstantAssessment";
+import { landingPages } from "../../data/landing-pages";
+import "../../styles/quote.css";
+
+export function getStaticPaths() {
+  // Generic page (no slug)
+  const paths = [
+    {
+      params: { slug: undefined },
+      props: {
+        page: {
+          headline: "Free HOA Insurance Assessment",
+          subheadline: "Tell us about your association and we'll deliver a personalized, board-ready coverage recommendation within one business day. No obligation.",
+          trustSignals: [
+            "Independent brokerage — not tied to any single carrier",
+            "Serving MA, RI, NH, CT, NY, and OK",
+            "Specialists in HOA master policies and HO-6 coordination",
+          ],
+          metaTitle: "Free HOA Insurance Assessment — ProtectMyHOA",
+          metaDescription: "Get a free, personalized HOA insurance coverage assessment. Master policies, D&O, HO-6 coordination. Independent brokerage serving New England, NY, and OK.",
+        } as typeof landingPages[0],
+      },
+    },
+  ];
+
+  // State/region pages
+  for (const page of landingPages) {
+    paths.push({
+      params: { slug: page.slug },
+      props: { page },
+    });
+  }
+
+  return paths;
+}
+
+const { page } = Astro.props;
+---
+
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/png" href="/favicon.png" />
+    <link rel="apple-touch-icon" href="/favicon.png" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#1a365d" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+
+    <title>{page.metaTitle}</title>
+    <meta name="description" content={page.metaDescription} />
+    <link rel="canonical" href={`https://www.protectmyhoa.com/get-started${page.slug ? `/${page.slug}` : ""}`} />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={page.metaTitle} />
+    <meta property="og:description" content={page.metaDescription} />
+    <meta property="og:url" content={`https://www.protectmyhoa.com/get-started${page.slug ? `/${page.slug}` : ""}`} />
+
+    <!-- Microsoft Clarity -->
+    <script type="text/javascript">
+      (function(c,l,a,r,i,t,y){
+        c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
+        t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
+        y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
+      })(window, document, "clarity", "script", "wamnker55b");
+    </script>
+
+    <script type="application/ld+json" set:html={JSON.stringify({
+      "@context": "https://schema.org",
+      "@type": "InsuranceAgency",
+      name: "HOA Insurance Agency",
+      url: "https://www.protectmyhoa.com",
+      telephone: "+1-508-233-2261",
+      email: "insurance@ProtectMyHOA.com",
+      address: {
+        "@type": "PostalAddress",
+        streetAddress: "11 Apex Drive, Suite 300A, Box 1067",
+        addressLocality: "Marlborough",
+        addressRegion: "MA",
+        postalCode: "01752",
+        addressCountry: "US",
+      },
+    })} />
+  </head>
+  <body style="margin:0; font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif; -webkit-font-smoothing: antialiased;">
+    <InstantAssessment
+      client:load
+      headline={page.headline}
+      subheadline={page.subheadline}
+      state={page.state}
+      stateAbbr={page.stateAbbr}
+      region={page.region}
+      trustSignals={page.trustSignals}
+      urgencyText={page.urgencyText}
+    />
+  </body>
+</html>
