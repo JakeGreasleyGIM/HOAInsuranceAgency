@@ -46,11 +46,11 @@ export function Hero({
         {subtitle && <p className="hero-subtitle">{subtitle}</p>}
         {ctaText && ctaHref && (
           ctaInternal ? (
-            <Link to={ctaHref} className="btn btn-white hero-cta">
+            <Link to={ctaHref} className="btn btn-gold hero-cta">
               {ctaText}
             </Link>
           ) : (
-            <a href={ctaHref} className="btn btn-white hero-cta">
+            <a href={ctaHref} className="btn btn-gold hero-cta">
               {ctaText}
             </a>
           )

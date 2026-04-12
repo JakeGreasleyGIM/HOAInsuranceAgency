@@ -2,6 +2,7 @@ import { Routes, Route } from "react-router-dom";
 import { Navbar } from "./components/Navbar";
 import { Footer } from "./components/Footer";
 import { useScrollToTop } from "./hooks/useScrollToTop";
+import { useReveal } from "./hooks/useReveal";
 import { Home } from "./pages/Home";
 import { AboutUs } from "./pages/AboutUs";
 import { WhatWeDo } from "./pages/WhatWeDo";
@@ -14,10 +15,16 @@ function ScrollToTop() {
   return null;
 }
 
+function RevealObserver() {
+  useReveal();
+  return null;
+}
+
 export default function App() {
   return (
     <>
       <ScrollToTop />
+      <RevealObserver />
       <Navbar />
       <main>
         <Routes>

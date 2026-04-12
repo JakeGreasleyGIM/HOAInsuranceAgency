@@ -6,6 +6,9 @@
   --color-blue: #2b6cb0;
   --color-blue-light: #4da6ff;
   --color-sky: #ebf4ff;
+  --color-gold: #d1b378;
+  --color-gold-light: #e8d5a8;
+  --color-gold-dim: rgba(209, 179, 120, 0.12);
   --color-gray-50: #f8fafc;
   --color-gray-100: #f1f5f9;
   --color-gray-200: #e2e8f0;
@@ -106,6 +109,17 @@ ul {
   box-shadow: 0 8px 24px rgba(43, 108, 176, 0.3);
 }
 
+.btn-gold {
+  background: var(--color-gold);
+  color: var(--color-navy-dark);
+}
+
+.btn-gold:hover {
+  background: var(--color-gold-light);
+  transform: translateY(-1px);
+  box-shadow: 0 8px 24px rgba(209, 179, 120, 0.35);
+}
+
 .btn-outline {
   background: transparent;
   color: var(--color-white);
@@ -191,8 +205,8 @@ ul {
   width: 48px;
   height: 48px;
   border-radius: 10px;
-  background: var(--color-sky);
-  color: var(--color-blue);
+  background: var(--color-gold-dim);
+  color: var(--color-gold);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -211,6 +225,37 @@ ul {
   line-height: 1.6;
 }
 
+/* ── Gold accent ── */
+.gold-accent {
+  color: var(--color-gold);
+}
+
+/* ── Scroll-reveal animations ── */
+.reveal {
+  opacity: 0;
+  transform: translateY(28px);
+  transition: opacity 0.7s cubic-bezier(0.2, 0.7, 0.3, 1),
+              transform 0.7s cubic-bezier(0.2, 0.7, 0.3, 1);
+}
+
+.reveal.revealed {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.reveal-delay-1 { transition-delay: 0.1s; }
+.reveal-delay-2 { transition-delay: 0.2s; }
+.reveal-delay-3 { transition-delay: 0.3s; }
+.reveal-delay-4 { transition-delay: 0.4s; }
+
+/* Stagger cards */
+.card-grid .card:nth-child(1) { transition-delay: 0s; }
+.card-grid .card:nth-child(2) { transition-delay: 0.08s; }
+.card-grid .card:nth-child(3) { transition-delay: 0.16s; }
+.card-grid .card:nth-child(4) { transition-delay: 0.24s; }
+.card-grid .card:nth-child(5) { transition-delay: 0.32s; }
+.card-grid .card:nth-child(6) { transition-delay: 0.40s; }
+
 /* ── Responsive ── */
 @media (max-width: 768px) {
   .section {
@@ -219,5 +264,13 @@ ul {
 
   .card-grid {
     grid-template-columns: 1fr;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal {
+    opacity: 1;
+    transform: none;
+    transition: none;
   }
 }

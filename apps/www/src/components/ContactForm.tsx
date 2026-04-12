@@ -3,32 +3,35 @@ import { FORMSUBMIT_URL, PHONE, PHONE_HREF, EMAIL, EMAIL_HREF, ADDRESS_LINE1, AD
 import "./ContactForm.css";
 
 export function ContactForm() {
-  const [name, setName] = useState("");
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
   const [message, setMessage] = useState("");
   const [status, setStatus] = useState<"idle" | "sending" | "sent" | "error">("idle");
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
-    if (!name.trim() || !email.trim() || !message.trim()) return;
+    if (!firstName.trim() || !lastName.trim() || !email.trim() || !message.trim()) return;
     setStatus("sending");
     try {
       const res = await fetch(FORMSUBMIT_URL, {
         method: "POST",
         headers: { "Content-Type": "application/json", Accept: "application/json" },
         body: JSON.stringify({
-          _subject: `Website Contact — ${name.trim()}`,
+          _subject: `Website Contact — ${firstName.trim()} ${lastName.trim()}`,
           _template: "table",
           _captcha: "false",
           _replyto: email.trim(),
-          Name: name.trim(),
+          "First Name": firstName.trim(),
+          "Last Name": lastName.trim(),
           Email: email.trim(),
           Message: message.trim(),
         }),
       });
       if (!res.ok) throw new Error("failed");
       setStatus("sent");
-      setName("");
+      setFirstName("");
+      setLastName("");
       setEmail("");
       setMessage("");
     } catch {
@@ -40,10 +43,7 @@ export function ContactForm() {
     <section className="section contact-section" id="contact">
       <div className="container contact-grid">
         <div className="contact-info">
-          <h2 className="section-title">Get in Touch</h2>
-          <p className="section-subtitle">
-            Ready for a review of your HOA insurance program? Reach out and we'll get back to you within one business day.
-          </p>
+          <h3 className="contact-heading">Contact Us Today</h3>
           <div className="contact-details">
             <div className="contact-item">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72c.13.96.37 1.9.72 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.91.35 1.85.59 2.81.72A2 2 0 0122 16.92z"/></svg>
@@ -67,19 +67,29 @@ export function ContactForm() {
                 <circle cx="24" cy="24" r="24" fill="var(--color-sky)" />
                 <path d="M16 24l6 6 10-12" stroke="var(--color-blue)" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
-              <h3>Message sent!</h3>
-              <p>We'll get back to you within one business day.</p>
+              <h3>Thank you!</h3>
+              <p>We'll be in touch soon.</p>
             </div>
           ) : (
             <>
-              <input
-                type="text"
-                placeholder="Your name"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                required
-                className="contact-input"
-              />
+              <div className="contact-name-row">
+                <input
+                  type="text"
+                  placeholder="First Name"
+                  value={firstName}
+                  onChange={(e) => setFirstName(e.target.value)}
+                  required
+                  className="contact-input"
+                />
+                <input
+                  type="text"
+                  placeholder="Last Name"
+                  value={lastName}
+                  onChange={(e) => setLastName(e.target.value)}
+                  required
+                  className="contact-input"
+                />
+              </div>
               <input
                 type="email"
                 placeholder="Email address"
@@ -106,7 +116,7 @@ export function ContactForm() {
                 className="btn btn-primary contact-submit"
                 disabled={status === "sending"}
               >
-                {status === "sending" ? "Sending..." : "Send Message"}
+                {status === "sending" ? "Sending..." : "Submit"}
               </button>
             </>
           )}

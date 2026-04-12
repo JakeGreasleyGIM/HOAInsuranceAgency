@@ -9,6 +9,10 @@
 .legal-updated {
   font-size: 14px;
   color: var(--color-gray-400);
+  margin-bottom: 24px;
+}
+
+.legal-content > p:first-of-type:not(.legal-updated) {
   margin-bottom: 32px;
 }
 
@@ -20,8 +24,12 @@
   margin-bottom: 12px;
 }
 
-.legal-content h2:first-of-type {
-  margin-top: 0;
+.legal-content h3 {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--color-gray-800);
+  margin-top: 20px;
+  margin-bottom: 8px;
 }
 
 .legal-content p {
@@ -43,4 +51,12 @@
   color: var(--color-gray-600);
   line-height: 1.6;
   list-style: disc;
+}
+
+.legal-contact {
+  margin-top: 48px;
+  padding-top: 24px;
+  border-top: 1px solid var(--color-gray-200);
+  font-weight: 600;
+  color: var(--color-gray-700) !important;
 }

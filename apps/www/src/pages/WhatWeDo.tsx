@@ -7,15 +7,15 @@ const MASTER_COVERAGES = [
   { title: "Property (Buildings & Common Areas)", items: ["Replacement cost vs. ACV", "Building limit adequacy", "Water and freeze exposure", "Per-unit water deductibles", "Ordinance or law limits", "Equipment breakdown"] },
   { title: "General Liability", items: ["Premises liability (slip & fall)", "Operations liability", "Medical payments and defense costs", "Contractual considerations"] },
   { title: "Umbrella / Excess Liability", items: ["Extends limits above underlying liability policies", "Broader protection for catastrophic claims"] },
-  { title: "Directors & Officers (D&O)", items: ["Governance allegations", "Decision disputes", "Wrongful acts and discrimination claims", "Defense costs"] },
-  { title: "Crime / Fidelity", items: ["Employee theft", "Forgery", "Computer fraud"] },
+  { title: "Directors & Officers (D&O)", items: ["Governance allegations", "Decision/enforcement disputes", "Discrimination claims (where eligible)", "Defense costs"] },
+  { title: "Crime / Fidelity", items: ["Employee/volunteer theft", "Forgery", "Computer fraud", "Funds transfer fraud"] },
 ];
 
 const COMMON_ISSUES = [
   "Master policy doesn't match bylaws",
   "Building limits are outdated",
   "Ordinance limits are too low",
-  "Deductible increases not communicated to unit owners",
+  "Uninformed unit owners about deductible increases",
   "Missing D&O or crime coverage",
   "Coverage gaps between master policy and HO-6",
 ];
@@ -41,6 +41,7 @@ export function WhatWeDo() {
         title="HOA Insurance"
         subtitle="Specializing in HOA master insurance policies for associations and HO-6 condo unit owner insurance for residents — built to work together."
         backgroundImage="/images/modern-building.jpg"
+        backgroundVideo="/images/hero-video.mp4"
         compact
       />
 
@@ -145,6 +146,19 @@ export function WhatWeDo() {
               </details>
             ))}
           </div>
+        </div>
+      </section>
+
+      {/* Callout */}
+      <section className="section section--alt" style={{ textAlign: "center" }}>
+        <div className="container">
+          <h3 className="section-title">Board renewal coming up? Unit owner needs HO-6?</h3>
+          <p className="section-subtitle" style={{ margin: "0 auto 32px" }}>
+            Start with a quick review — no commitment, no pressure.
+          </p>
+          <a href={QUOTE_URL} className="btn btn-primary">
+            Request Insurance Review
+          </a>
         </div>
       </section>
 

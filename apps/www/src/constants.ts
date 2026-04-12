@@ -18,4 +18,5 @@ export const NAV_LINKS = [
   { label: "About Us", path: "/about-us" },
   { label: "HOA Insurance", path: "/what-we-do" },
   { label: "Why Choose Us", path: "/why-choose-us" },
+  { label: "Contact", path: "/#contact" },
 ];

@@ -1,4 +1,5 @@
 import { Hero } from "../components/Hero";
+import { EMAIL, ADDRESS_LINE1, ADDRESS_LINE2 } from "../constants";
 import "./LegalPage.css";
 
 export function PrivacyPolicy() {
@@ -7,54 +8,114 @@ export function PrivacyPolicy() {
       <Hero
         title="Privacy Policy"
         backgroundImage="/images/about-hero.jpg"
+        backgroundVideo="/images/hero-video.mp4"
         compact
       />
       <section className="section legal-section">
         <div className="container legal-content">
-          <p className="legal-updated">Last updated: January 2026</p>
-
-          <h2>Information We Collect</h2>
+          <p className="legal-updated">Effective Date: January 1, 2026 | Last Updated: January 1, 2026</p>
           <p>
-            When you use our website or quote request form, we may collect personal information such as your name, email address, phone number, and details about your association or property. This information is provided voluntarily when you submit a form or contact us.
+            This Privacy Policy explains how HOA Insurance Agency LLC ("Company," "we," "us," "our") collects, uses, shares, and protects information when you visit www.protectmyhoa.com, contact us, request quotes, apply for insurance, or otherwise interact with us.
           </p>
 
-          <h2>How We Use Your Information</h2>
-          <p>We use the information we collect to:</p>
+          <h2>1. Scope</h2>
+          <p>This policy covers information collected through:</p>
           <ul>
-            <li>Respond to your insurance inquiries and quote requests</li>
-            <li>Provide insurance-related guidance and recommendations</li>
-            <li>Communicate with you about your coverage needs</li>
-            <li>Improve our website and services</li>
+            <li>Our website and online forms</li>
+            <li>Email, phone, SMS, and other communications</li>
+            <li>Insurance quoting, placement, and servicing activities</li>
+          </ul>
+          <p>Applicants, insureds, and claimants may have additional privacy protections under applicable insurance and financial services laws.</p>
+
+          <h2>2. Information We Collect</h2>
+          <h3>A. Information You Provide to Us</h3>
+          <ul>
+            <li>Contact details (name, address, email, phone)</li>
+            <li>Insurance and underwriting information (property details, HOA information, coverage needs, loss history)</li>
+            <li>Identifiers (date of birth, driver's license, Social Security number — only when required)</li>
+            <li>Billing and payment details</li>
+            <li>Communications (emails, chat messages, call recordings, voicemails)</li>
+          </ul>
+          <h3>B. Information Collected Automatically</h3>
+          <ul>
+            <li>Device and usage data (IP address, browser type, pages visited, clicks, timestamps)</li>
+            <li>Cookies, pixels, tags, and similar tracking technologies</li>
+          </ul>
+          <h3>C. Information from Third Parties</h3>
+          <ul>
+            <li>Insurance carriers, wholesalers, MGAs, and distribution partners</li>
+            <li>Data providers for identity verification and property data</li>
+            <li>Advertising and analytics partners</li>
+            <li>Public sources (e.g., property records)</li>
           </ul>
 
-          <h2>Information Sharing</h2>
-          <p>
-            We do not sell, trade, or rent your personal information to third parties. We may share your information with insurance carriers and underwriters as necessary to process your insurance requests. We may also disclose information when required by law.
-          </p>
+          <h2>3. How We Use Information</h2>
+          <p>We use the information we collect to:</p>
+          <ul>
+            <li>Provide quotes, place coverage, and service policies</li>
+            <li>Communicate with you about your insurance needs</li>
+            <li>Verify identity and prevent fraud</li>
+            <li>Improve our website and customer experience</li>
+            <li>Conduct analytics</li>
+            <li>Send marketing communications (where permitted)</li>
+            <li>Comply with legal and regulatory obligations</li>
+          </ul>
 
-          <h2>Data Security</h2>
-          <p>
-            We implement reasonable security measures to protect your personal information. However, no method of transmission over the Internet is 100% secure, and we cannot guarantee absolute security.
-          </p>
+          <h2>4. How We Share Information</h2>
+          <p>We do not sell your personal information. We may share information as follows:</p>
+          <h3>A. With Insurance and Service Partners</h3>
+          <p>Insurance companies, underwriting partners, wholesalers, MGAs, service providers (CRM, email, hosting, analytics, support), and payment processors.</p>
+          <h3>B. For Legal, Security, and Compliance</h3>
+          <p>To comply with laws and regulations, protect rights and safety, and investigate fraud.</p>
+          <h3>C. Business Transfers</h3>
+          <p>If we are involved in a merger, acquisition, or asset sale, your information may be transferred as part of that transaction.</p>
 
-          <h2>Cookies</h2>
-          <p>
-            Our website may use cookies and similar technologies to improve your browsing experience and analyze site traffic. You can control cookie settings through your browser preferences.
-          </p>
+          <h2>5. Your Privacy Choices</h2>
+          <ul>
+            <li>Unsubscribe from marketing emails via the unsubscribe link or by contacting {EMAIL}</li>
+            <li>Opt out of text messages by replying STOP</li>
+            <li>Adjust cookie preferences through your browser settings</li>
+          </ul>
+          <p>We currently do not respond to "Do Not Track" signals.</p>
 
-          <h2>Third-Party Services</h2>
-          <p>
-            Our website may contain links to third-party websites. We are not responsible for the privacy practices or content of those sites. We encourage you to review their privacy policies.
-          </p>
+          <h2>6. Cookies &amp; Tracking Technologies</h2>
+          <p>We use cookies and pixels for site functionality, security, fraud prevention, analytics, and marketing measurement. You can control cookies through your browser settings.</p>
 
-          <h2>Changes to This Policy</h2>
-          <p>
-            We may update this privacy policy from time to time. Changes will be posted on this page with an updated revision date.
-          </p>
+          <h2>7. Sensitive Information</h2>
+          <p>Insurance transactions may involve sensitive personal data. We collect such information only as needed to provide services, comply with regulations, and prevent fraud.</p>
 
-          <h2>Contact Us</h2>
-          <p>
-            If you have questions about this privacy policy, please contact us at insurance@ProtectMyHOA.com or call 508-233-2261.
+          <h2>8. Data Security</h2>
+          <p>We use reasonable administrative, technical, and physical safeguards to protect your information. However, no system can be guaranteed 100% secure.</p>
+
+          <h2>9. Data Retention</h2>
+          <p>We retain information as needed to provide services, maintain business records, comply with legal and regulatory requirements, and resolve disputes.</p>
+
+          <h2>10. Children's Privacy</h2>
+          <p>Our website is not intended for children under 13 (or under 16 in certain jurisdictions). We do not knowingly collect information from children.</p>
+
+          <h2>11. State Privacy Rights (U.S.)</h2>
+          <p>Depending on your state of residence, you may have the right to:</p>
+          <ul>
+            <li>Access your personal information</li>
+            <li>Correct inaccuracies</li>
+            <li>Request deletion of certain data</li>
+            <li>Opt out of certain disclosures</li>
+          </ul>
+          <p><strong>How to submit a request:</strong></p>
+          <ul>
+            <li>Email: {EMAIL}</li>
+            <li>Mail: {ADDRESS_LINE1}, {ADDRESS_LINE2}</li>
+          </ul>
+          <p><strong>California Notice:</strong> California residents may have additional rights under the CCPA/CPRA. We do not sell personal information. We do not share personal information for cross-context behavioral advertising.</p>
+
+          <h2>12. External Links</h2>
+          <p>Our website may link to third-party sites. We are not responsible for their privacy practices.</p>
+
+          <h2>13. Changes to This Policy</h2>
+          <p>We may update this policy from time to time. Changes will be posted on this page with a new "Last Updated" date.</p>
+
+          <p className="legal-contact">
+            Questions? Contact us at {EMAIL}.
           </p>
         </div>
       </section>

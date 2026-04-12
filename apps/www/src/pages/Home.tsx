@@ -5,7 +5,7 @@ import { QUOTE_URL } from "../constants";
 import "./Home.css";
 
 const COVERAGES = [
-  { title: "Master Property Insurance", desc: "Buildings, common areas, replacement cost coverage for your association's shared assets.", icon: "building" },
+  { title: "HOA Master Property Insurance", desc: "Buildings, common areas, replacement cost coverage for your association's shared assets.", icon: "building" },
   { title: "General Liability", desc: "Slip and fall, premises liability, operations coverage, medical payments and defense costs.", icon: "shield" },
   { title: "Umbrella / Excess Liability", desc: "Extends limits above underlying liability policies for broader protection.", icon: "umbrella" },
   { title: "Directors & Officers (D&O)", desc: "Governance allegations, decision disputes, wrongful acts, and defense costs.", icon: "briefcase" },
@@ -23,11 +23,18 @@ const ICONS: Record<string, JSX.Element> = {
 };
 
 const STEPS = [
-  { num: "01", title: "Review", desc: "We review your current policies, loss history, exposures, and governing documents." },
-  { num: "02", title: "Identify Gaps", desc: "Deductible structure, building valuation, ordinance limits, liability adequacy, water loss exposure." },
-  { num: "03", title: "Market & Negotiate", desc: "We shop across carriers and specialty markets to find the best fit for your association." },
-  { num: "04", title: "Present Clearly", desc: "Clean summary of coverage, deductibles, limits, and tradeoffs your board can act on." },
-  { num: "05", title: "Support Through Renewal", desc: "We stay involved before, during, and after your renewal — not just at the deadline." },
+  { num: "01", title: "Review", desc: "We review current policies, loss history, key exposures, and governing documents (when available)." },
+  { num: "02", title: "Identify gaps", desc: "We flag common HOA issues: deductible structure, ordinance/law, building valuation, water losses, and liability limits." },
+  { num: "03", title: "Market & negotiate", desc: "We shop the account across appropriate carriers and specialty markets." },
+  { num: "04", title: "Present options clearly", desc: "Boards get a clean summary — coverage, deductibles, limits, and tradeoffs." },
+  { num: "05", title: "Support through renewal", desc: "We stay involved before, during, and after the renewal date." },
+];
+
+const CLIENT_TYPES = [
+  "HOA boards and trustees",
+  "Condominium associations and condo trusts",
+  "Property managers",
+  "Unit owners seeking aligned HO-6 coverage",
 ];
 
 export function Home() {
@@ -42,22 +49,46 @@ export function Home() {
         ctaHref={QUOTE_URL}
       />
 
-      {/* Coverages */}
+      {/* Intro value prop */}
       <section className="section">
+        <div className="container intro-grid reveal">
+          <div className="intro-content">
+            <h2 className="section-title">
+              Insurance Built for Associations isn't just a slogan — it's how we operate.
+            </h2>
+            <p>
+              HOA Insurance Agency is an independent insurance brokerage focused on insurance programs for HOAs and condo associations, plus HO-6 condo unit owner coverage aligned with the master policy.
+            </p>
+            <p className="intro-callout">
+              Boards and trustees make high-stakes decisions. Our job is to make those decisions clear, defendable, and properly insured.
+            </p>
+            <Link to="/what-we-do" className="text-link">Learn More &gt;</Link>
+          </div>
+          <div className="intro-image">
+            <img src="/images/about-hero.jpg" alt="HOA community" />
+          </div>
+        </div>
+      </section>
+
+      {/* Coverages */}
+      <section className="section section--alt">
         <div className="container">
-          <h2 className="section-title">Specialists in HOA Master Insurance</h2>
+          <h3 className="section-title">Specialists in HOA Master Insurance</h3>
           <p className="section-subtitle">
             We help associations place and manage the core coverages that protect shared assets and governance.
           </p>
           <div className="card-grid">
             {COVERAGES.map((c) => (
-              <div key={c.title} className="card">
+              <div key={c.title} className="card reveal">
                 <div className="card-icon">{ICONS[c.icon]}</div>
                 <h3>{c.title}</h3>
                 <p>{c.desc}</p>
               </div>
             ))}
           </div>
+          <p className="coverages-note">
+            Our focus is not "cheap insurance." It's appropriate insurance that holds up when a claim happens.
+          </p>
           <div className="section-cta-wrap">
             <Link to="/what-we-do" className="btn btn-primary">
               Learn More
@@ -67,20 +98,20 @@ export function Home() {
       </section>
 
       {/* HO-6 */}
-      <section className="section section--alt">
-        <div className="container ho6-grid">
+      <section className="section">
+        <div className="container ho6-grid reveal">
           <div className="ho6-content">
-            <h2 className="section-title">HO-6 Condo Insurance for Unit Owners</h2>
+            <h3 className="section-title">HO-6 Condo Insurance for Unit Owners</h3>
             <p>
-              Coverage problems happen when master policy and unit owner coverage aren't coordinated. We help unit owners understand:
+              Many coverage problems happen because the master policy and unit owner coverage aren't coordinated. We make it easy to align:
             </p>
             <ul className="check-list">
               <li>What the association covers (master policy)</li>
               <li>What unit owners must cover (HO-6)</li>
-              <li>Loss assessment exposure from deductibles, special assessments, and shared claims</li>
+              <li>Loss assessment exposure</li>
             </ul>
             <p className="ho6-callout">
-              If your association's master policy has large deductibles — including per-unit water deductibles — HO-6 coverage is not optional. It's essential.
+              If your association's master policy has large deductibles, HO-6 coverage is not optional — it's essential.
             </p>
             <Link to="/what-we-do" className="btn btn-primary">
               Learn More
@@ -93,20 +124,22 @@ export function Home() {
       </section>
 
       {/* Process */}
-      <section className="section">
+      <section className="section section--alt">
         <div className="container">
-          <h2 className="section-title">A Board-Friendly Process</h2>
-          <p className="section-subtitle">
-            From initial review to ongoing support, we make insurance clear and actionable.
-          </p>
+          <h3 className="section-title">A Board-Friendly Process</h3>
           <div className="steps-grid">
             {STEPS.map((s) => (
-              <div key={s.num} className="step-card">
+              <div key={s.num} className="step-card reveal">
                 <span className="step-num">{s.num}</span>
                 <h3>{s.title}</h3>
                 <p>{s.desc}</p>
               </div>
             ))}
+          </div>
+          <div className="section-cta-wrap">
+            <Link to="/about-us" className="btn btn-primary">
+              Learn More
+            </Link>
           </div>
         </div>
       </section>
@@ -114,15 +147,17 @@ export function Home() {
       {/* Who We Work With */}
       <section className="section section--navy">
         <div className="container" style={{ textAlign: "center" }}>
-          <h2 className="section-title">Who We Work With</h2>
-          <p className="section-subtitle" style={{ margin: "0 auto 36px" }}>
-            HOA boards and trustees, condo associations and trusts, property managers, and unit owners seeking HO-6 aligned with the master policy.
-          </p>
-          <p className="section-subtitle" style={{ margin: "0 auto 36px" }}>
+          <h3 className="section-title">Who We Work With</h3>
+          <ul className="client-list">
+            {CLIENT_TYPES.map((c) => (
+              <li key={c}>{c}</li>
+            ))}
+          </ul>
+          <p className="section-subtitle" style={{ margin: "24px auto 36px" }}>
             If your HOA renewal is approaching — or you want a second opinion — start with a quick review.
           </p>
-          <a href={QUOTE_URL} className="btn btn-white">
-            Request Insurance Review
+          <a href="#contact" className="btn btn-white">
+            Contact HOA Insurance Agency
           </a>
         </div>
       </section>

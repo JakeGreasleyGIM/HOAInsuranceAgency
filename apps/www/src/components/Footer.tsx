@@ -7,7 +7,6 @@ import {
   ADDRESS_LINE1,
   ADDRESS_LINE2,
   SOCIAL,
-  NAV_LINKS,
 } from "../constants";
 import "./Footer.css";
 
@@ -17,24 +16,17 @@ export function Footer() {
       <div className="footer-inner container">
         <div className="footer-col footer-brand">
           <img src="/logo.png" alt="HOA Insurance Agency" className="footer-logo" />
-          <p className="footer-tagline">
-            Insurance built for associations.
-          </p>
         </div>
 
         <div className="footer-col">
           <h4 className="footer-heading">Quick Links</h4>
-          {NAV_LINKS.map((l) => (
-            <Link key={l.path} to={l.path} className="footer-link">
-              {l.label}
-            </Link>
-          ))}
-          <Link to="/privacy-policy" className="footer-link">
-            Privacy Policy
-          </Link>
-          <Link to="/terms-of-service" className="footer-link">
-            Terms of Service
-          </Link>
+          <Link to="/" className="footer-link">Home</Link>
+          <Link to="/about-us" className="footer-link">About Us</Link>
+          <Link to="/what-we-do" className="footer-link">HOA Insurance</Link>
+          <Link to="/why-choose-us" className="footer-link">Why Choose Us</Link>
+          <a href="/#contact" className="footer-link">Contact</a>
+          <Link to="/privacy-policy" className="footer-link">Privacy Policy</Link>
+          <Link to="/terms-of-service" className="footer-link">Terms of Service</Link>
         </div>
 
         <div className="footer-col">

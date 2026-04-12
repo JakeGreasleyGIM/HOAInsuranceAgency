@@ -12,11 +12,51 @@
   margin-top: 16px;
 }
 
+.about-intro-content p:first-child {
+  margin-top: 0;
+}
+
 .about-intro-image img {
   width: 100%;
   border-radius: 16px;
   object-fit: cover;
   aspect-ratio: 4/3;
+}
+
+/* Beliefs — simple bullet list matching live site */
+.beliefs-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-top: 24px;
+  max-width: 720px;
+}
+
+.belief-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  font-size: 16px;
+  color: var(--color-gray-700);
+  line-height: 1.6;
+  padding: 16px 20px;
+  background: var(--color-white);
+  border: 1px solid var(--color-gray-200);
+  border-radius: 10px;
+}
+
+.belief-item::before {
+  content: "";
+  display: inline-block;
+  width: 22px;
+  height: 22px;
+  min-width: 22px;
+  margin-top: 2px;
+  border-radius: 50%;
+  background: var(--color-sky);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%232b6cb0' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12l5 5 9-11'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: center;
 }
 
 .approach-list {
@@ -33,7 +73,7 @@
   font-size: 16px;
   color: var(--color-gray-700);
   padding: 16px 20px;
-  background: var(--color-gray-50);
+  background: var(--color-white);
   border: 1px solid var(--color-gray-200);
   border-radius: 10px;
 }
