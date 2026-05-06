@@ -7,12 +7,12 @@ import { QUOTE_URL } from "../constants";
 import "../pages/Home.css";
 
 const COVERAGES = [
-  { title: "HOA Master Property Insurance", desc: "Buildings, common areas, replacement cost coverage for your association's shared assets.", icon: "building" },
-  { title: "General Liability", desc: "Slip and fall, premises liability, operations coverage, medical payments and defense costs.", icon: "shield" },
-  { title: "Umbrella / Excess Liability", desc: "Extends limits above underlying liability policies for broader protection.", icon: "umbrella" },
-  { title: "Directors & Officers (D&O)", desc: "Governance allegations, decision disputes, wrongful acts, and defense costs.", icon: "briefcase" },
-  { title: "Crime / Fidelity", desc: "Employee theft, forgery, computer fraud coverage for your association's funds.", icon: "lock" },
-  { title: "Ordinance or Law", desc: "Covers increased costs when rebuilding must meet current building codes.", icon: "scale" },
+  { title: "HOA Master Property Insurance", desc: "Protects buildings, common areas, and shared assets at replacement cost — the foundation of every HOA insurance program.", icon: "building" },
+  { title: "General Liability", desc: "Covers slip and fall claims, premises liability, operations exposure, medical payments, and legal defense costs.", icon: "shield" },
+  { title: "Umbrella / Excess Liability", desc: "Extends limits above underlying liability policies for catastrophic claim protection.", icon: "umbrella" },
+  { title: "Directors & Officers (D&O)", desc: "Shields board members and trustees from governance allegations, decision disputes, and wrongful acts claims.", icon: "briefcase" },
+  { title: "Crime / Fidelity Bond", desc: "Covers employee theft, forgery, computer fraud, and funds transfer fraud — essential for associations handling member dues.", icon: "lock" },
+  { title: "Ordinance or Law", desc: "Pays the increased cost when rebuilding must meet current building codes after a covered loss.", icon: "scale" },
 ];
 
 const STEPS = [
@@ -29,12 +29,32 @@ const CLIENT_TYPES = [
   "Property managers",
   "Unit owners seeking aligned HO-6 coverage",
 ];
+
+const FAQS = [
+  { q: "What is HOA master insurance?", a: "An HOA master insurance policy protects the association's shared property, common areas, and liability exposure. It typically includes property coverage, general liability, and can extend to D&O, crime/fidelity, umbrella, and ordinance or law coverage. The master policy is purchased by the association — not individual unit owners." },
+  { q: "What is the difference between HOA master insurance and HO-6?", a: "The master policy covers association-owned buildings, common areas, and shared liability. HO-6 insurance is purchased by individual condo unit owners and covers personal property, interior improvements, personal liability, and loss assessment exposure. Both policies should be coordinated to avoid gaps." },
+  { q: "Do condo unit owners need HO-6 insurance?", a: "In most cases, yes. The HOA master policy typically does not cover your personal belongings, interior upgrades, or your share of association deductibles and special assessments. HO-6 insurance fills these gaps and is especially important if your association has large per-unit deductibles." },
+  { q: "What states does HOA Insurance Agency serve?", a: "We currently serve HOA and condominium associations in Massachusetts, Rhode Island, New Hampshire, Connecticut, New York, and Oklahoma. Our home office is in Marlborough, MA." },
+  { q: "How much does HOA insurance cost?", a: "HOA insurance costs vary based on the number of units, building age and construction type, location, claims history, and coverage limits. We provide free, no-obligation coverage assessments to help boards understand their options and make informed decisions." },
+  { q: "What should HOA boards review at insurance renewal?", a: "At renewal, boards should review building valuation and replacement cost, deductible structure (especially per-unit water deductibles), ordinance or law limits, general liability and umbrella adequacy, D&O and crime/fidelity coverage, and any changes in loss history or property conditions." },
+];
+
+const faqJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  mainEntity: FAQS.map((f) => ({
+    "@type": "Question",
+    name: f.q,
+    acceptedAnswer: { "@type": "Answer", text: f.a },
+  })),
+};
 ---
 
 <Layout
-  title="HOA Insurance, Built for Associations — ProtectMyHOA"
-  description="Independent insurance brokerage specializing in HOA master policies and HO-6 condo unit owner coverage. Serving MA, RI, NH, CT, NY, OK."
+  title="HOA Insurance for Condominium Associations & Unit Owners — ProtectMyHOA"
+  description="Independent HOA insurance brokerage specializing in master policies, D&O, HO-6 condo coverage, and more. Free coverage assessments for associations in MA, RI, NH, CT, NY, OK. Call 508-233-2261."
   canonicalPath=""
+  jsonLd={[faqJsonLd]}
 >
   <Hero
     title="HOA Insurance, Built for Associations"
@@ -50,9 +70,9 @@ const CLIENT_TYPES = [
     <div class="container intro-grid reveal">
       <div class="intro-content">
         <h2 class="section-title">Insurance Built for Associations isn't just a slogan — it's how we operate.</h2>
-        <p>HOA Insurance Agency is an independent insurance brokerage focused on insurance programs for HOAs and condo associations, plus HO-6 condo unit owner coverage aligned with the master policy.</p>
+        <p>HOA Insurance Agency is an independent insurance brokerage focused on insurance programs for HOAs and condo associations, plus <a href="/what-we-do">HO-6 condo unit owner coverage</a> aligned with the master policy.</p>
         <p class="intro-callout">Boards and trustees make high-stakes decisions. Our job is to make those decisions clear, defendable, and properly insured.</p>
-        <a href="/what-we-do" class="text-link">Learn More &gt;</a>
+        <a href="/about-us" class="text-link">About Our Agency &gt;</a>
       </div>
       <div class="intro-image">
         <img src="/images/about-hero.jpg" alt="HOA board members reviewing condominium association insurance policy" loading="lazy" width="800" height="600" />
@@ -63,8 +83,8 @@ const CLIENT_TYPES = [
   <!-- Coverages -->
   <section class="section section--alt">
     <div class="container">
-      <h3 class="section-title">Specialists in HOA Master Insurance</h3>
-      <p class="section-subtitle">We help associations place and manage the core coverages that protect shared assets and governance.</p>
+      <h2 class="section-title">HOA Master Insurance Coverages We Place</h2>
+      <p class="section-subtitle">We help associations place and manage the core coverages that protect shared assets, board members, and community governance.</p>
       <div class="card-grid">
         {COVERAGES.map((c) => (
           <div class="card reveal">
@@ -83,7 +103,7 @@ const CLIENT_TYPES = [
       </div>
       <p class="coverages-note">Our focus is not "cheap insurance." It's appropriate insurance that holds up when a claim happens.</p>
       <div class="section-cta-wrap">
-        <a href="/what-we-do" class="btn btn-primary">Learn More</a>
+        <a href="/what-we-do" class="btn btn-primary">Explore All HOA Coverages</a>
       </div>
     </div>
   </section>
@@ -92,18 +112,18 @@ const CLIENT_TYPES = [
   <section class="section">
     <div class="container ho6-grid reveal">
       <div class="ho6-content">
-        <h3 class="section-title">HO-6 Condo Insurance for Unit Owners</h3>
-        <p>Many coverage problems happen because the master policy and unit owner coverage aren't coordinated. We make it easy to align:</p>
+        <h2 class="section-title">HO-6 Condo Insurance for Unit Owners</h2>
+        <p>Many coverage problems happen because the <a href="/what-we-do">master policy</a> and unit owner coverage aren't coordinated. We make it easy to align:</p>
         <ul class="check-list">
           <li>What the association covers (master policy)</li>
           <li>What unit owners must cover (HO-6)</li>
           <li>Loss assessment exposure</li>
         </ul>
         <p class="ho6-callout">If your association's master policy has large deductibles, HO-6 coverage is not optional — it's essential.</p>
-        <a href="/what-we-do" class="btn btn-primary">Learn More</a>
+        <a href="/what-we-do" class="btn btn-primary">Learn About HO-6 Coverage</a>
       </div>
       <div class="ho6-image">
-        <img src="/images/modern-building.jpg" alt="Modern condo building" loading="lazy" width="800" height="600" />
+        <img src="/images/modern-building.jpg" alt="Modern condominium building with HOA master insurance coverage" loading="lazy" width="800" height="600" />
       </div>
     </div>
   </section>
@@ -111,7 +131,7 @@ const CLIENT_TYPES = [
   <!-- Process -->
   <section class="section section--alt">
     <div class="container">
-      <h3 class="section-title">A Board-Friendly Process</h3>
+      <h2 class="section-title">A Board-Friendly Insurance Review Process</h2>
       <div class="steps-grid">
         {STEPS.map((s) => (
           <div class="step-card reveal">
@@ -122,7 +142,7 @@ const CLIENT_TYPES = [
         ))}
       </div>
       <div class="section-cta-wrap">
-        <a href="/about-us" class="btn btn-primary">Learn More</a>
+        <a href="/about-us" class="btn btn-primary">About Our Approach</a>
       </div>
     </div>
   </section>
@@ -133,12 +153,43 @@ const CLIENT_TYPES = [
   <!-- Who We Work With -->
   <section class="section section--navy">
     <div class="container" style="text-align: center">
-      <h3 class="section-title">Who We Work With</h3>
+      <h2 class="section-title">Who We Work With</h2>
       <ul class="client-list">
         {CLIENT_TYPES.map((c) => <li>{c}</li>)}
       </ul>
       <p class="section-subtitle" style="margin: 24px auto 36px">If your HOA renewal is approaching — or you want a second opinion — start with a quick review.</p>
       <a href="#contact" class="btn btn-white">Contact HOA Insurance Agency</a>
+    </div>
+  </section>
+
+  <!-- Service Areas -->
+  <section class="section">
+    <div class="container" style="text-align: center">
+      <h2 class="section-title">HOA Insurance by State</h2>
+      <p class="section-subtitle" style="margin: 0 auto 32px">We serve condominium associations and HOA boards across six states.</p>
+      <div class="state-links">
+        <a href="/hoa-insurance-massachusetts" class="state-link">Massachusetts</a>
+        <a href="/hoa-insurance-rhode-island" class="state-link">Rhode Island</a>
+        <a href="/hoa-insurance-new-hampshire" class="state-link">New Hampshire</a>
+        <a href="/hoa-insurance-connecticut" class="state-link">Connecticut</a>
+        <a href="/hoa-insurance-new-york" class="state-link">New York</a>
+        <a href="/hoa-insurance-oklahoma" class="state-link">Oklahoma</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section class="section section--alt" id="faq">
+    <div class="container">
+      <h2 class="section-title">Frequently Asked Questions About HOA Insurance</h2>
+      <div class="faq-list">
+        {FAQS.map((f) => (
+          <details class="faq-item">
+            <summary>{f.q}</summary>
+            <p>{f.a}</p>
+          </details>
+        ))}
+      </div>
     </div>
   </section>
 

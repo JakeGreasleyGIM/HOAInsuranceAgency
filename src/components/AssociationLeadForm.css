@@ -1,0 +1,408 @@
+/* ── Association Lead Form ── */
+.alf-container {
+  display: grid;
+  grid-template-columns: 1.1fr 0.9fr;
+  min-height: 100vh;
+  min-height: 100dvh;
+}
+
+/* ── Form Side ── */
+.alf-form-side {
+  padding: clamp(48px, 6vw, 80px) clamp(32px, 5vw, 72px);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  max-width: 680px;
+  margin-left: auto;
+}
+
+.alf-eyebrow {
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: #d1b378;
+  margin: 0 0 12px;
+}
+
+.alf-headline {
+  font-size: clamp(28px, 4vw, 40px);
+  font-weight: 800;
+  letter-spacing: -0.025em;
+  line-height: 1.12;
+  color: #0f172a;
+  margin-bottom: 12px;
+}
+
+.alf-sub {
+  font-size: clamp(15px, 1.8vw, 17px);
+  color: #64748b;
+  line-height: 1.6;
+  margin-bottom: 24px;
+}
+
+/* Pre-filled property card */
+.alf-property-card {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+  padding: 16px 18px;
+  background: rgba(209, 179, 120, 0.08);
+  border: 1.5px solid rgba(209, 179, 120, 0.3);
+  border-radius: 12px;
+  margin-bottom: 28px;
+}
+
+.alf-property-pin {
+  flex-shrink: 0;
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  background: rgba(209, 179, 120, 0.18);
+  color: #9a7d3f;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.alf-property-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.alf-property-label {
+  font-size: 11px !important;
+  font-weight: 700 !important;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #9a7d3f !important;
+  margin-bottom: 2px;
+}
+
+.alf-property-text strong {
+  font-size: 15px;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.alf-property-text span {
+  color: #64748b;
+}
+
+/* ── Form ── */
+.alf-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.alf-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.alf-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.alf-field--full {
+  grid-column: 1 / -1;
+}
+
+.alf-field label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #475569;
+}
+
+.alf-field input,
+.alf-field select,
+.alf-field textarea {
+  width: 100%;
+  padding: 13px 16px;
+  font-size: 15px;
+  font-family: inherit;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 10px;
+  background: #fff;
+  color: #0f172a;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.alf-field textarea {
+  resize: vertical;
+  min-height: 80px;
+  font-family: inherit;
+}
+
+.alf-field select {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+  padding-right: 40px;
+}
+
+.alf-field input:focus,
+.alf-field select:focus,
+.alf-field textarea:focus {
+  border-color: #2b6cb0;
+  box-shadow: 0 0 0 3px rgba(43, 108, 176, 0.08);
+}
+
+.alf-field input::placeholder,
+.alf-field textarea::placeholder {
+  color: #94a3b8;
+}
+
+.alf-error {
+  font-size: 14px;
+  color: #d92d20;
+  margin: 0;
+}
+
+.alf-submit {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  padding: 18px 24px;
+  font-size: 17px;
+  font-weight: 700;
+  font-family: inherit;
+  border: none;
+  border-radius: 12px;
+  background: #d1b378;
+  color: #132a4a;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  margin-top: 4px;
+}
+
+.alf-submit:hover:not(:disabled) {
+  background: #e8d5a8;
+  transform: translateY(-1px);
+  box-shadow: 0 10px 28px rgba(209, 179, 120, 0.35);
+}
+
+.alf-submit:active {
+  transform: translateY(0) scale(0.99);
+}
+
+.alf-submit:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.alf-disclaimer {
+  font-size: 12px;
+  color: #94a3b8;
+  text-align: center;
+  margin: 0;
+}
+
+/* ── Trust Side ── */
+.alf-trust-side {
+  background: #1a365d;
+  color: #fff;
+  padding: clamp(48px, 6vw, 80px) clamp(32px, 5vw, 60px);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 36px;
+}
+
+.alf-logo {
+  height: 48px;
+  width: auto;
+  filter: brightness(0) invert(1);
+}
+
+.alf-what-you-get h3 {
+  font-size: 14px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: rgba(255, 255, 255, 0.5);
+  margin-bottom: 18px;
+}
+
+.alf-what-you-get ul {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.alf-what-you-get li {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  font-size: 15px;
+  color: rgba(255, 255, 255, 0.9);
+  line-height: 1.4;
+}
+
+.alf-what-you-get svg {
+  flex-shrink: 0;
+  margin-top: 2px;
+  color: #d1b378;
+}
+
+.alf-signals {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.alf-signal {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.65);
+  line-height: 1.5;
+}
+
+.alf-signal svg {
+  flex-shrink: 0;
+  margin-top: 2px;
+  color: #d1b378;
+}
+
+.alf-contact-alt {
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  padding-top: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.alf-contact-alt p {
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.4);
+  margin: 0 0 4px;
+}
+
+.alf-contact-alt a {
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.7);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.alf-contact-alt a:hover {
+  color: #fff;
+}
+
+/* ── Success ── */
+.alf-success {
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 48px 24px;
+  background: #f8fafc;
+}
+
+.alf-success-icon {
+  margin-bottom: 24px;
+  animation: alfPop 0.6s cubic-bezier(0.2, 0.9, 0.4, 1.4) both;
+}
+
+@keyframes alfPop {
+  0% { opacity: 0; transform: scale(0.5); }
+  60% { transform: scale(1.08); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
+.alf-success-title {
+  font-size: 32px;
+  font-weight: 800;
+  color: #0f172a;
+  margin-bottom: 12px;
+}
+
+.alf-success-text {
+  font-size: 17px;
+  color: #64748b;
+  line-height: 1.6;
+  max-width: 520px;
+  margin-bottom: 32px;
+}
+
+.alf-success-text strong {
+  color: #0f172a;
+  font-weight: 700;
+}
+
+.alf-phone-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 28px;
+  border-radius: 10px;
+  background: rgba(209, 179, 120, 0.1);
+  border: 1.5px solid rgba(209, 179, 120, 0.3);
+  color: #0f172a;
+  font-size: 15px;
+  font-weight: 600;
+  text-decoration: none;
+  margin-bottom: 20px;
+  transition: all 0.2s;
+}
+
+.alf-phone-link:hover {
+  background: rgba(209, 179, 120, 0.18);
+  border-color: #d1b378;
+}
+
+.alf-back-link {
+  font-size: 14px;
+  color: #94a3b8;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.alf-back-link:hover {
+  color: #0f172a;
+}
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+  .alf-container {
+    grid-template-columns: 1fr;
+    min-height: auto;
+  }
+
+  .alf-form-side {
+    padding: 40px 20px;
+    max-width: 100%;
+    margin-left: 0;
+  }
+
+  .alf-row {
+    grid-template-columns: 1fr;
+  }
+
+  .alf-trust-side {
+    padding: 40px 20px;
+  }
+
+  .alf-headline {
+    font-size: 28px;
+  }
+}

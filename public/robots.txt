@@ -1,4 +1,5 @@
 User-agent: *
 Allow: /
+Disallow: /associations/
 
 Sitemap: https://www.protectmyhoa.com/sitemap-index.xml

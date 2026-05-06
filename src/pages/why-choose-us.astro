@@ -30,12 +30,12 @@ const DIFFERENTIATORS = [
 ---
 
 <Layout
-  title="Why Choose ProtectMyHOA for HOA Insurance"
-  description="HOA-only focus, systems thinking, defensible renewal strategies, and coordinated HO-6 programs. See why associations choose ProtectMyHOA."
+  title="Why Choose HOA Insurance Agency — Specialists in HOA & Condo Insurance"
+  description="HOA-only focus, coordinated coverage systems, defensible renewal strategies, and HO-6 programs that reduce board headaches. See why associations choose ProtectMyHOA. Free review — 508-233-2261."
   canonicalPath="/why-choose-us"
 >
   <Hero
-    title="Why Choose Us"
+    title="Why Choose HOA Insurance Agency"
     subtitle="HOA boards need more than a generic insurance quote. Associations face shared ownership, shared liability, shared governance — plus increasingly complex underwriting requirements."
     backgroundImage="/images/hero-people.jpg"
     backgroundVideo="/images/hero-video.mp4"
@@ -44,14 +44,14 @@ const DIFFERENTIATORS = [
 
   <section class="section">
     <div class="container">
-      <p class="wcu-intro">We specialize in HOA master insurance and HO-6 condo insurance so decisions are clear, practical, and aligned with how associations actually operate.</p>
+      <p class="wcu-intro">We specialize in <a href="/what-we-do">HOA master insurance</a> and HO-6 condo insurance so decisions are clear, practical, and aligned with how associations actually operate.</p>
       <div style="margin-bottom: 48px">
-        <a href="/what-we-do" class="btn btn-primary">What We Do</a>
+        <a href="/what-we-do" class="btn btn-primary">Explore Our HOA Coverages</a>
       </div>
       <div class="wcu-grid">
         {DIFFERENTIATORS.map((d) => (
           <div class="wcu-card reveal">
-            <h3>{d.title}</h3>
+            <h2 class="wcu-card-title">{d.title}</h2>
             <p>{d.desc}</p>
             <ul>
               {d.bullets.map((b) => <li>{b}</li>)}
@@ -64,10 +64,10 @@ const DIFFERENTIATORS = [
 
   <section class="section section--navy" style="text-align: center">
     <div class="container">
-      <h3 class="section-title">If you want an HOA insurance partner built for association renewals and HO-6 coordination, let's talk.</h3>
+      <h2 class="section-title">If you want an HOA insurance partner built for association renewals and HO-6 coordination, let's talk.</h2>
       <div style="margin-top: 32px; display: flex; gap: 16px; justify-content: center; flex-wrap: wrap">
         <a href={QUOTE_URL} class="btn btn-white">Request Insurance Review</a>
-        <a href="/what-we-do" class="btn btn-outline">What We Do</a>
+        <a href="/what-we-do" class="btn btn-outline">See Our HOA Coverages</a>
       </div>
     </div>
   </section>
